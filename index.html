@@ -17,7 +17,7 @@
     .card{background:#020617;border:1px solid #1f2937;border-radius:14px}.btn{border:1px solid #334155;background:#0f172a;color:#e5e7eb;border-radius:10px;padding:7px 10px;font-size:12px;font-weight:800;transition:.15s}.btn:hover{border-color:#64748b;background:#172554}.chip{border:1px solid #334155;background:#0b1220;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:800;color:#cbd5e1}.status-dot{width:8px;height:8px;border-radius:999px;display:inline-block}.pulse{animation:pulse 1.5s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
     .marquee{white-space:nowrap;overflow:hidden}.marquee span{display:inline-block;padding-left:100%;animation:marquee 34s linear infinite}@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
     .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#f8fafc;color:#0f172a}.leaflet-control-attribution{background:rgba(2,6,23,.75)!important;color:#cbd5e1!important}.leaflet-control-attribution a{color:#93c5fd!important}
-    .source-tile{display:flex;gap:10px;padding:10px;border-radius:12px;border:1px solid #1f2937;background:#030712}.source-tile:hover{border-color:#475569;background:#0b1220}.kpi{background:linear-gradient(180deg,#0f172a,#020617);border:1px solid #1f2937;border-radius:16px;padding:12px}.badge-red{background:#450a0a;color:#fecaca;border:1px solid #7f1d1d}.badge-amber{background:#451a03;color:#fde68a;border:1px solid #92400e}.badge-green{background:#052e16;color:#bbf7d0;border:1px solid #166534}.badge-blue{background:#082f49;color:#bae6fd;border:1px solid #075985}.badge-violet{background:#2e1065;color:#ddd6fe;border:1px solid #6d28d9}
+    .source-tile{display:flex;gap:10px;padding:10px;border-radius:12px;border:1px solid #1f2937;background:#030712}.source-tile:hover{border-color:#475569;background:#0b1220}.x-tile{display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:12px;border:1px solid #1e293b;background:linear-gradient(180deg,#020617,#0f172a)}.x-tile:hover{border-color:#38bdf8}.kpi{background:linear-gradient(180deg,#0f172a,#020617);border:1px solid #1f2937;border-radius:16px;padding:12px}.badge-red{background:#450a0a;color:#fecaca;border:1px solid #7f1d1d}.badge-amber{background:#451a03;color:#fde68a;border:1px solid #92400e}.badge-green{background:#052e16;color:#bbf7d0;border:1px solid #166534}.badge-blue{background:#082f49;color:#bae6fd;border:1px solid #075985}.badge-violet{background:#2e1065;color:#ddd6fe;border:1px solid #6d28d9}.badge-slate{background:#0f172a;color:#cbd5e1;border:1px solid #334155}
     @media(max-width:1280px){body{overflow:auto}#map{height:540px}.app-grid{grid-template-columns:1fr!important;height:auto!important}.right-col,.left-col{height:auto!important;max-height:none!important}}
   </style>
 </head>
@@ -49,7 +49,7 @@
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Trenes</div><div id="kpiRail" class="text-2xl font-black text-orange-400">--</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Cámaras</div><div id="kpiCams" class="text-2xl font-black text-sky-400">--</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Paneles</div><div id="kpiPanels" class="text-2xl font-black text-yellow-400">--</div></div>
-    <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Fuentes web</div><div id="kpiSources" class="text-2xl font-black text-violet-400">--</div></div>
+    <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Canales X</div><div id="kpiX" class="text-2xl font-black text-sky-400">--</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Última carga</div><div id="kpiUpdated" class="text-sm font-black text-green-400 mt-1">--</div></div>
     <div class="kpi col-span-2"><div class="text-[10px] text-gray-500 uppercase font-black">Búsqueda global</div><input id="searchBox" class="w-full mt-1 bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-xs outline-none focus:border-sky-500" placeholder="Municipio, vía, línea, fuente..." /></div>
   </section>
@@ -71,9 +71,10 @@
 
     <section class="xl:col-span-6 glass rounded-2xl p-2 flex flex-col min-h-0">
       <div id="map" class="rounded-xl overflow-hidden border border-gray-800"></div>
-      <div class="grid md:grid-cols-3 gap-2 mt-2 text-xs">
-        <a class="btn text-center" target="_blank" rel="noopener" href="https://cit.transit.gencat.cat/">Mapa SCT oficial</a>
-        <a class="btn text-center" target="_blank" rel="noopener" href="https://rodalies.gencat.cat/ca/alteracions_del_servei/">Rodalies oficial</a>
+      <div class="grid md:grid-cols-4 gap-2 mt-2 text-xs">
+        <a class="btn text-center" target="_blank" rel="noopener" href="https://mct.gencat.cat/">MCT oficial SCT</a>
+        <a class="btn text-center" target="_blank" rel="noopener" href="https://cit.transit.gencat.cat/">Incidencias SCT</a>
+        <button id="openXHubBtn" class="btn text-center">Canales X críticos</button>
         <a class="btn text-center" target="_blank" rel="noopener" href="https://www.aena.es/es/infovuelos.html">AENA Infovuelos</a>
       </div>
     </section>
@@ -88,6 +89,13 @@
         <button class="btn sourceFilter" data-filter="emergencia">Emergencias</button>
         <button class="btn sourceFilter" data-filter="transporte">Transporte</button>
         <button class="btn sourceFilter" data-filter="meteo">Meteo</button>
+      </div>
+      <div class="card p-3 mb-3">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-xs font-black uppercase tracking-widest text-sky-300">𝕏 Canales críticos</h3>
+          <button id="xLiveSearchBtn" class="text-[10px] text-sky-400 font-black">Búsqueda live</button>
+        </div>
+        <div id="xChannelsMini" class="grid grid-cols-2 gap-1 text-[10px]"></div>
       </div>
       <div id="officialSources" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
     </aside>
@@ -121,7 +129,8 @@
       {name:'Bombers Generalitat', type:'emergencia', icon:'🚒', priority:'Alta', status:'web/xarxes', url:'https://interior.gencat.cat/ca/arees_dactuacio/bombers/', social:'https://x.com/bomberscat', desc:'Incendios, rescates, salvamentos y comunicados del cuerpo de Bombers.'},
       {name:'Mossos d’Esquadra', type:'emergencia', icon:'👮', priority:'Alta', status:'web/xarxes', url:'https://mossos.gencat.cat/', social:'https://x.com/mossos', desc:'Seguridad ciudadana, avisos policiales, tráfico y prevención.'},
       {name:'Agents Rurals', type:'emergencia', icon:'🌲', priority:'Alta', status:'web/xarxes', url:'https://interior.gencat.cat/ca/arees_dactuacio/agents-rurals/', social:'https://x.com/agentsruralscat', desc:'Medio natural, prevención de incendios, Pla Alfa y restricciones en espacios forestales.'},
-      {name:'Servei Català de Trànsit', type:'transporte', icon:'🚗', priority:'Crítica', status:'datos abiertos', url:'https://cit.transit.gencat.cat/', social:'https://x.com/transit', desc:'Mapa continuo de tráfico, incidencias, cámaras y paneles informativos.'},
+      {name:'Mapa Continu de Trànsit MCT', type:'transporte', icon:'🗺️', priority:'Crítica', status:'visor oficial', url:'https://mct.gencat.cat/', live:'https://transit.gencat.cat/ca/informacio-viaria/estat-transit/mapa-continu-mct/', social:'https://x.com/transit', desc:'Visor oficial del Servei Català de Trànsit basado en Google Maps: incidencias en tiempo real, densidad, cámaras, paneles, restricciones, meteorología, tramos de obras y XIMP.'},
+      {name:'Servei Català de Trànsit - dades obertes', type:'transporte', icon:'🚗', priority:'Crítica', status:'datos abiertos', url:'https://cit.transit.gencat.cat/', live:'https://analisi.transparenciacatalunya.cat/', social:'https://x.com/transit', desc:'Datos abiertos del SCT que esta página intenta cargar directamente: incidencias viarias, cámaras de tráfico y paneles informativos.'},
       {name:'Rodalies Catalunya', type:'transporte', icon:'🚆', priority:'Alta', status:'web/datos', url:'https://rodalies.gencat.cat/ca/alteracions_del_servei/', social:'https://x.com/rodalies', desc:'Estado del servicio, alteraciones, demoras y planes alternativos.'},
       {name:'Adif', type:'transporte', icon:'🛤️', priority:'Alta', status:'web', url:'https://www.adif.es/viajeros/estado-de-la-red', social:'https://x.com/Adif_es', desc:'Estado de la red ferroviaria e incidencias de infraestructura.'},
       {name:'Renfe', type:'transporte', icon:'🚄', priority:'Alta', status:'web/xarxes', url:'https://www.renfe.com/es/es/ayuda/estado-del-servicio', social:'https://x.com/Renfe', desc:'Estado del servicio ferroviario y comunicaciones de operador.'},
@@ -131,6 +140,16 @@
       {name:'API Meteocat', type:'meteo', icon:'🔑', priority:'Media', status:'requiere clave', url:'https://apidocs.meteocat.gencat.cat/', desc:'API REST oficial con JSON para predicción, avisos y datos en tiempo real. Requiere API Key.'},
       {name:'Mapa Protecció Civil ICGC', type:'emergencia', icon:'🗺️', priority:'Media', status:'web', url:'https://pcivil.icgc.cat/', desc:'Mapa de riesgos y capas de protección civil de Catalunya.'}
     ];
+
+    const X_CHANNELS = [
+      {handle:'interiorcat', name:'Interior Catalunya', icon:'🏛️', url:'https://x.com/interiorcat', official:'https://interior.gencat.cat/ca/xarxes_socials/', role:'Coordinación institucional, avisos del Departament d’Interior y campañas de seguridad.'},
+      {handle:'mossos', name:'Mossos', icon:'👮', url:'https://x.com/mossos', official:'https://mossos.gencat.cat/ca/actualitat/Xarxes-socials/', role:'Avisos policiales, seguridad ciudadana, tráfico policial y prevención.'},
+      {handle:'emergenciescat', name:'Protecció Civil', icon:'🛡️', url:'https://x.com/emergenciescat', official:'https://interior.gencat.cat/ca/arees_dactuacio/proteccio_civil/noticies-xarxes-socials-pc/Xarxes-socials/', role:'Alertas de emergencias, planes activados, confinamientos, evacuaciones y consejos oficiales.'},
+      {handle:'bomberscat', name:'Bombers', icon:'🚒', url:'https://x.com/bomberscat', official:'https://interior.gencat.cat/ca/xarxes_socials/', role:'Incendios, rescates, salvamentos y dispositivos operativos de Bombers Generalitat.'},
+      {handle:'semgencat', name:'SEM', icon:'🚑', url:'https://x.com/semgencat', official:'https://sem.gencat.cat/ca/inici', role:'Emergencias médicas, 061 Salut Respon y comunicaciones sanitarias operativas.'}
+    ];
+
+    const X_SEARCH_TERMS = encodeURIComponent('(from:interiorcat OR from:mossos OR from:emergenciescat OR from:bomberscat OR from:semgencat) (emergència OR emergencia OR afectacions OR afectación OR tall OR confinament OR evacuació OR incendi OR accident OR alerta OR activat OR risc OR trànsit OR 112 OR 061)');
 
     const state = {traffic:[], rail:[], cams:[], panels:[], sourceFilter:'all', markers:{traffic:L.layerGroup(), cams:L.layerGroup(), panels:L.layerGroup()}, allIncidents:[]};
 
@@ -247,6 +266,50 @@
       renderIncidents();
     }
 
+
+    function twitterEmbedUrl(handle){
+      return `https://twitter.com/${encodeURIComponent(handle)}?ref_src=twsrc%5Etfw`;
+    }
+
+    function renderXMini(){
+      $('kpiX').textContent = X_CHANNELS.length;
+      $('xChannelsMini').innerHTML = X_CHANNELS.map(c => `<button class="btn !p-2 text-left" data-xhandle="${safe(c.handle)}"><span class="mr-1">${c.icon}</span>@${safe(c.handle)}</button>`).join('');
+      document.querySelectorAll('[data-xhandle]').forEach(btn => btn.onclick = () => openXChannel(btn.dataset.xhandle));
+      $('xLiveSearchBtn').onclick = () => window.open(`https://x.com/search?q=${X_SEARCH_TERMS}&src=typed_query&f=live`, '_blank', 'noopener');
+      $('openXHubBtn').onclick = openXHub;
+    }
+
+    function loadXWidgets(){
+      if(window.twttr && window.twttr.widgets){ window.twttr.widgets.load(); return; }
+      if(document.getElementById('twitter-wjs')) return;
+      const js=document.createElement('script'); js.id='twitter-wjs'; js.async=true; js.charset='utf-8'; js.src='https://platform.twitter.com/widgets.js'; document.body.appendChild(js);
+    }
+
+    function openXHub(){
+      $('modalTitle').textContent = '𝕏 Canales críticos de emergencias';
+      $('modalSubtitle').textContent = 'Interior · Mossos · Protecció Civil · Bombers · SEM';
+      $('modalBody').innerHTML = `<div class="space-y-3">
+        <div class="card p-3 text-xs text-amber-100"><b>Modo HTML puro:</b> se integran botones oficiales, búsqueda live prefiltrada y timelines embebidos mediante el widget oficial de X. Si X exige sesión, bloquea cookies de terceros o cambia su política, el timeline puede no cargarse; los botones oficiales seguirán funcionando.</div>
+        <div class="grid sm:grid-cols-2 gap-2">${X_CHANNELS.map(c => `<div class="x-tile"><div class="text-2xl">${c.icon}</div><div><div class="font-black">${safe(c.name)} <span class="text-sky-400">@${safe(c.handle)}</span></div><p class="text-[11px] text-gray-400 mt-1">${safe(c.role)}</p><div class="flex flex-wrap gap-2 mt-2"><button class="text-[10px] text-sky-300 font-black" data-xhandle="${safe(c.handle)}">Ver timeline</button><a class="text-[10px] text-violet-300 font-black" target="_blank" rel="noopener" href="${safe(c.url)}">Abrir X</a><a class="text-[10px] text-green-300 font-black" target="_blank" rel="noopener" href="${safe(c.official)}">Verificación oficial</a></div></div></div>`).join('')}</div>
+        <a class="btn inline-block" target="_blank" rel="noopener" href="https://x.com/search?q=${X_SEARCH_TERMS}&src=typed_query&f=live">Abrir búsqueda live combinada por palabras críticas</a>
+      </div>`;
+      sourceModal.showModal();
+      document.querySelectorAll('[data-xhandle]').forEach(btn => btn.onclick = () => openXChannel(btn.dataset.xhandle));
+    }
+
+    function openXChannel(handle){
+      const c=X_CHANNELS.find(x=>x.handle===handle); if(!c) return;
+      $('modalTitle').textContent = `${c.icon} ${c.name} @${c.handle}`;
+      $('modalSubtitle').textContent = 'Timeline oficial X · fuente crítica complementaria';
+      $('modalBody').innerHTML = `<div class="space-y-3">
+        <div class="grid sm:grid-cols-3 gap-2"><a class="btn text-center" target="_blank" rel="noopener" href="${safe(c.url)}">Abrir en X</a><a class="btn text-center" target="_blank" rel="noopener" href="${safe(c.official)}">Ver página oficial</a><a class="btn text-center" target="_blank" rel="noopener" href="https://x.com/search?q=${encodeURIComponent('from:'+c.handle+' (emergència OR emergencia OR afectacions OR alerta OR accident OR incendi OR evacuació OR confinament OR 112 OR 061)')}&src=typed_query&f=live">Buscar avisos críticos</a></div>
+        <div class="card p-3 text-xs text-amber-100"><b>Fiabilidad:</b> X es útil para detección rápida, pero no sustituye llamadas al 112/061 ni los comunicados oficiales. El timeline puede fallar si el navegador bloquea scripts/cookies de terceros.</div>
+        <div class="card p-2 min-h-[560px] bg-black"><a class="twitter-timeline" data-theme="dark" data-height="560" data-chrome="noheader nofooter transparent" href="${twitterEmbedUrl(c.handle)}">Tweets by @${safe(c.handle)}</a></div>
+      </div>`;
+      sourceModal.showModal();
+      loadXWidgets();
+    }
+
     function renderSources(){
       const q=$('searchBox').value.trim().toLowerCase();
       const filtered=OFFICIAL_SOURCES.filter(s=>(state.sourceFilter==='all'||s.type===state.sourceFilter)&&(!q||[s.name,s.type,s.desc,s.priority,s.status].join(' ').toLowerCase().includes(q)));
@@ -267,7 +330,8 @@
     async function openSource(name){
       const s=OFFICIAL_SOURCES.find(x=>x.name===name); if(!s) return;
       $('modalTitle').textContent=`${s.icon} ${s.name}`; $('modalSubtitle').textContent=`${s.type.toUpperCase()} · prioridad ${s.priority} · ${s.status}`;
-      $('modalBody').innerHTML=`<div class="space-y-3"><p>${safe(s.desc)}</p><div class="grid sm:grid-cols-3 gap-2"><a class="btn text-center" target="_blank" rel="noopener" href="${safe(s.url)}">Abrir web oficial</a>${s.live?`<a class="btn text-center" target="_blank" rel="noopener" href="${safe(s.live)}">Abrir directo/noticias</a>`:''}${s.social?`<a class="btn text-center" target="_blank" rel="noopener" href="${safe(s.social)}">Abrir red social</a>`:''}</div><div class="card p-3 text-xs text-amber-200"><b>Nota técnica:</b> desde un único HTML en GitHub Pages no se puede leer de forma fiable X/Twitter, Facebook, AENA o algunas webs oficiales por CORS, autenticación y políticas anti-scraping. Este módulo deja las fuentes verificadas a un clic y prepara la integración para backend/proxy si más adelante se permite.</div></div>`;
+      const mctInfo = s.name.includes('MCT') ? '<div class="card p-3 text-xs text-sky-200"><b>MCT oficial:</b> este visor del SCT concentra incidencias en tiempo real, densidad del tráfico, cámaras, paneles de mensaje variable, meteorología, restricciones, mercancías peligrosas y datos de zonas fronterizas. En esta versión HTML se enlaza directamente porque el visor completo no es integrable de forma fiable dentro de GitHub Pages.</div>' : '';
+      $('modalBody').innerHTML=`<div class="space-y-3"><p>${safe(s.desc)}</p>${mctInfo}<div class="grid sm:grid-cols-3 gap-2"><a class="btn text-center" target="_blank" rel="noopener" href="${safe(s.url)}">Abrir web oficial</a>${s.live?`<a class="btn text-center" target="_blank" rel="noopener" href="${safe(s.live)}">Abrir directo/noticias</a>`:''}${s.social?`<a class="btn text-center" target="_blank" rel="noopener" href="${safe(s.social)}">Abrir red social</a>`:''}</div><div class="card p-3 text-xs text-amber-200"><b>Nota técnica:</b> desde un único HTML en GitHub Pages no se puede embeber ni leer de forma fiable el MCT completo, X/Twitter, Facebook, AENA o algunas webs oficiales por CORS, iframes bloqueados, autenticación y políticas anti-scraping. Por eso el centro carga datos abiertos cuando existen y deja el visor oficial MCT y otras fuentes verificadas a un clic.</div></div>`;
       sourceModal.showModal();
     }
 
@@ -283,7 +347,7 @@
       const results=await Promise.allSettled(tasks);
       const failed=results.filter(r=>r.status==='rejected');
       if(failed.length) console.warn('Fuentes con error:',failed.map(f=>f.reason));
-      rebuildIncidentDataset(); renderSources(); applyLayerVisibility();
+      rebuildIncidentDataset(); renderSources(); renderXMini(); applyLayerVisibility();
       $('kpiUpdated').textContent=fmtTime(new Date());
       $('globalStatus').innerHTML=failed.length?`<span class="status-dot bg-amber-400"></span> ${failed.length} fuente/s con error`:'<span class="status-dot bg-green-400"></span> Operativo';
       $('sourcesStatus').innerHTML='<span class="status-dot bg-green-400"></span> '+OFFICIAL_SOURCES.length+' fuentes';
