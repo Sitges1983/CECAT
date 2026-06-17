@@ -159,8 +159,8 @@
       {name:'Bombers Generalitat', type:'emergencia', icon:'🚒', priority:'Alta', status:'web/xarxes', url:'https://interior.gencat.cat/ca/arees_dactuacio/bombers/', social:'https://x.com/bomberscat', desc:'Incendios, rescates, salvamentos y comunicados del cuerpo de Bombers.'},
       {name:'Mossos d’Esquadra', type:'emergencia', icon:'👮', priority:'Alta', status:'web/xarxes', url:'https://mossos.gencat.cat/', social:'https://x.com/mossos', desc:'Seguridad ciudadana, avisos policiales, tráfico y prevención.'},
       {name:'Agents Rurals', type:'emergencia', icon:'🌲', priority:'Alta', status:'web/xarxes', url:'https://interior.gencat.cat/ca/arees_dactuacio/agents-rurals/', social:'https://x.com/agentsruralscat', desc:'Medio natural, prevención de incendios, Pla Alfa y restricciones en espacios forestales.'},
-      {name:'Mapa Continu de Trànsit MCT', type:'transporte', icon:'🗺️', priority:'Crítica', status:'visor oficial', url:'https://mct.gencat.cat/', live:'https://transit.gencat.cat/ca/informacio-viaria/estat-transit/mapa-continu-mct/', social:'https://x.com/transit', desc:'Visor oficial del Servei Català de Trànsit basado en Google Maps: incidencias en tiempo real, densidad, cámaras, paneles, restricciones, meteorología, tramos de obras y XIMP.'},
-      {name:'Servei Català de Trànsit - dades obertes', type:'transporte', icon:'🚗', priority:'Crítica', status:'datos abiertos', url:'https://cit.transit.gencat.cat/', live:'https://analisi.transparenciacatalunya.cat/', social:'https://x.com/transit', desc:'Datos abiertos del SCT que esta página carga directamente dentro del panel: incidencias viarias, cámaras de tráfico y paneles informativos.'},
+      {name:'Mapa Continu de Trànsit MCT', type:'transporte', icon:'🗺️', priority:'Crítica', status:'visor oficial', url:'https://mct.gencat.cat/', live:'https://transit.gencat.cat/ca/informacio-viaria/estat-transit/mapa-continu-mct/', social:'https://x.com/transit', desc:'Visor oficial del Servei Català de Trànsit: incidencias, densidad, cámaras, paneles, restricciones, meteorología, obras y XIMP.'},
+      {name:'Servei Català de Trànsit - dades obertes', type:'transporte', icon:'🚗', priority:'Crítica', status:'datos abiertos', url:'https://cit.transit.gencat.cat/', live:'https://analisi.transparenciacatalunya.cat/', social:'https://x.com/transit', desc:'Datos abiertos del SCT cargados directamente en el panel: incidencias viarias, cámaras y paneles informativos.'},
       {name:'Rodalies Catalunya', type:'transporte', icon:'🚆', priority:'Alta', status:'web/datos', url:'https://rodalies.gencat.cat/ca/alteracions_del_servei/', social:'https://x.com/rodalies', desc:'Estado del servicio, alteraciones, demoras y planes alternativos.'},
       {name:'Adif', type:'transporte', icon:'🛤️', priority:'Alta', status:'web', url:'https://www.adif.es/viajeros/estado-de-la-red', social:'https://x.com/Adif_es', desc:'Estado de la red ferroviaria e incidencias de infraestructura.'},
       {name:'Renfe', type:'transporte', icon:'🚄', priority:'Alta', status:'web/xarxes', url:'https://www.renfe.com/es/es/ayuda/estado-del-servicio', social:'https://x.com/Renfe', desc:'Estado del servicio ferroviario y comunicaciones de operador.'},
@@ -181,18 +181,31 @@
 
     const X_SEARCH_TERMS = encodeURIComponent('(from:interiorcat OR from:mossos OR from:emergenciescat OR from:bomberscat OR from:semgencat) (emergència OR emergencia OR afectacions OR afectación OR tall OR confinament OR evacuació OR incendi OR accident OR alerta OR activat OR risc OR trànsit OR 112 OR 061)');
 
-    const state = {traffic:[], rail:[], cams:[], panels:[], sourceFilter:'all', markers:{traffic:L.layerGroup(), cams:L.layerGroup(), panels:L.layerGroup()}, allIncidents:[], cit:{type:'all', sort:'severity', road:'', area:'', onlyGeo:false}};
+    const byId = id => document.getElementById(id);
+    const els = {
+      clock: byId('clock'), globalStatus: byId('globalStatus'), refreshBtn: byId('refreshBtn'), fitBtn: byId('fitBtn'), ticker: byId('ticker'),
+      kpiTraffic: byId('kpiTraffic'), kpiRail: byId('kpiRail'), kpiCams: byId('kpiCams'), kpiPanels: byId('kpiPanels'), kpiX: byId('kpiX'), kpiSources: byId('kpiSources'), kpiUpdated: byId('kpiUpdated'),
+      searchBox: byId('searchBox'), trafficStatus: byId('trafficStatus'), toggleTraffic: byId('toggleTraffic'), toggleRail: byId('toggleRail'), toggleCams: byId('toggleCams'), togglePanels: byId('togglePanels'),
+      citPanel: byId('citPanel'), citSummary: byId('citSummary'), resetCitFilters: byId('resetCitFilters'), citType: byId('citType'), citSort: byId('citSort'), citRoad: byId('citRoad'), citArea: byId('citArea'), citOnlyGeo: byId('citOnlyGeo'),
+      incidentList: byId('incidentList'), openCitBtn: byId('openCitBtn'), toggleCitPanelBtn: byId('toggleCitPanelBtn'), sourcesStatus: byId('sourcesStatus'), xLiveSearchBtn: byId('xLiveSearchBtn'), openXHubBtn: byId('openXHubBtn'), xChannelsMini: byId('xChannelsMini'), officialSources: byId('officialSources'),
+      sourceModal: byId('sourceModal'), modalTitle: byId('modalTitle'), modalSubtitle: byId('modalSubtitle'), modalBody: byId('modalBody')
+    };
 
-    const $ = id => document.getElementById(id);
-    const safe = v => String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-    const fmtTime = d => new Intl.DateTimeFormat('es-ES',{timeZone:'Europe/Madrid',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(d);
-    const fmtDateTime = d => new Intl.DateTimeFormat('es-ES',{timeZone:'Europe/Madrid',dateStyle:'short',timeStyle:'medium'}).format(d);
-    const num = v => Number(String(v).replace(',','.'));
+    const safe = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+    const fmtTime = date => new Intl.DateTimeFormat('es-ES',{timeZone:'Europe/Madrid',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(date);
+    const fmtDateTime = date => new Intl.DateTimeFormat('es-ES',{timeZone:'Europe/Madrid',dateStyle:'short',timeStyle:'medium'}).format(date);
+    const num = value => Number(String(value ?? '').replace(',','.'));
+
+    const state = {
+      traffic: [], rail: [], cams: [], panels: [], allIncidents: [], sourceFilter: 'all', refreshTimer: null,
+      cit: {type:'all', sort:'severity', road:'', area:'', onlyGeo:false},
+      markers: {traffic:L.layerGroup(), cams:L.layerGroup(), panels:L.layerGroup()}
+    };
 
     const map = L.map('map',{zoomControl:true}).setView([41.75,1.95],8);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
     Object.values(state.markers).forEach(layer => layer.addTo(map));
-    setTimeout(()=>map.invalidateSize(),300);
+    setTimeout(() => map.invalidateSize(), 300);
 
     const icons = {
       traffic: L.divIcon({className:'',html:'<div style="background:#ef4444;color:white;border:2px solid white;border-radius:999px;width:24px;height:24px;display:grid;place-items:center;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.45)">!</div>',iconSize:[24,24]}),
@@ -200,50 +213,40 @@
       panel: L.divIcon({className:'',html:'<div style="background:#ca8a04;color:#111827;border:2px solid white;border-radius:999px;width:23px;height:23px;display:grid;place-items:center;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.45)">▣</div>',iconSize:[23,23]})
     };
 
-    function setClock(){ $('clock').textContent = fmtDateTime(new Date()) + ' BCN'; }
-    setClock(); setInterval(setClock,1000);
+    function setClock(){ els.clock.textContent = fmtDateTime(new Date()) + ' BCN'; }
+    setClock();
+    setInterval(setClock, 1000);
 
-    async function fetchJson(url){
+    async function getJson(url){
       try{
-        const r = await fetch(url,{cache:'no-store'});
-        if(!r.ok) throw new Error('HTTP '+r.status);
-        return await r.json();
-      }catch(e){
-        const proxy='https://api.allorigins.win/raw?url='+encodeURIComponent(url);
-        const r = await fetch(proxy,{cache:'no-store'});
-        if(!r.ok) throw new Error('Proxy HTTP '+r.status);
-        return await r.json();
+        const response = await fetch(url,{cache:'no-store'});
+        if(!response.ok) throw new Error('HTTP '+response.status);
+        return await response.json();
+      }catch(primaryError){
+        const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+        const response = await fetch(proxy,{cache:'no-store'});
+        if(!response.ok) throw new Error('Proxy HTTP '+response.status);
+        return await response.json();
       }
     }
 
     function severity(text){
-      const t=String(text||'').toLowerCase();
+      const t = String(text || '').toLowerCase();
       if(/tall|interromp|accident|incendi|evacu|confin|emerg|greu|aturat|susp[eè]s|cancel/.test(t)) return ['Crítica','badge-red'];
       if(/demora|retenci|restric|obres|afectaci|alteraci|lent|pla alternatiu/.test(t)) return ['Alta','badge-amber'];
       return ['Info','badge-blue'];
     }
 
-    function incidentCard(item){
-      const [sev,badge]=severity(item.searchText);
-      const meta=[item.road, item.km, item.direction, item.area].filter(Boolean).join(' · ');
-      return `<div class="card p-3 hover:border-gray-600 transition cursor-pointer incident-card" data-search="${safe(item.searchText)}" data-lat="${safe(item.lat||'')}" data-lon="${safe(item.lon||'')}">
-        <div class="flex justify-between gap-2 items-start mb-1"><span class="text-[10px] px-2 py-0.5 rounded-full ${badge} font-black">${sev}</span><span class="text-[10px] text-gray-500 font-mono">${safe(item.source)}</span></div>
-        <div class="font-black text-gray-100 text-[12px] leading-snug">${safe(item.title)}</div>
-        ${meta?`<div class="text-[10px] text-sky-300 font-mono mt-1">${safe(meta)}</div>`:''}
-        <p class="text-gray-400 text-[11px] leading-relaxed mt-1">${safe(item.desc).slice(0,320)}</p>
-        <div class="text-[10px] text-gray-500 mt-2">Integrado en el panel · clic para centrar en el mapa si tiene coordenadas</div>
-      </div>`;
-    }
-
     function incidentRank(item){
-      const t=(item.searchText||'').toLowerCase();
+      const t = (item.searchText || '').toLowerCase();
       if(/tall|tallada|accident|incendi|aturat|interromp/.test(t)) return 0;
       if(/retenci|congest|dens|restric|afectaci/.test(t)) return 1;
       if(/obres|meteorolog|boira|neu|pluja|vent/.test(t)) return 2;
       return 3;
     }
+
     function citTypeOf(item){
-      const t=(item.searchText||'').toLowerCase();
+      const t = (item.searchText || '').toLowerCase();
       if(/tall|tallada|accident|incendi|aturat|interromp/.test(t)) return 'tall';
       if(/retenci|congest|dens/.test(t)) return 'retencions';
       if(/obra|obres/.test(t)) return 'obres';
@@ -251,222 +254,256 @@
       if(/mesura|restric|especial|carril|sentit contrari/.test(t)) return 'mesures';
       return 'info';
     }
+
+    function trafficItemFrom(inc){
+      const road = inc.vvia || inc.via || inc.carretera || 'Vía';
+      const km = [inc.ptini, inc.ptfi].filter(Boolean).join('-');
+      const area = inc.comarca || inc.demarcacio || inc.demarcaci || inc.poblacio || '';
+      const tram = inc.tram || inc.descripcio_tram || inc.descripcio || '';
+      const direction = inc.sentit || inc.cap_a || inc.cap || '';
+      const title = `${road}${km ? ` km ${km}` : ''}`;
+      const desc = [inc.tipus || inc.causa || 'Incidencia', inc.nivell_afectacio || inc.nivell || '', inc.descripcio || inc.observacions || ''].filter(Boolean).join(' · ');
+      return {source:'SCT/CIT Tráfico', type:'traffic', title, desc, road, km, area, tram, direction, lat:inc.latitud, lon:inc.longitud, searchText:[road,km,area,tram,direction,inc.tipus,inc.causa,inc.nivell_afectacio,inc.descripcio,inc.observacions,'sct cit carretera tráfico transit retencions obres meteorologia mesures'].join(' ')};
+    }
+
+    function incidentCard(item){
+      const [sev,badge] = severity(item.searchText);
+      const meta = [item.road, item.km, item.direction, item.area].filter(Boolean).join(' · ');
+      return `<div class="card p-3 hover:border-gray-600 transition cursor-pointer incident-card" data-search="${safe(item.searchText)}" data-lat="${safe(item.lat || '')}" data-lon="${safe(item.lon || '')}">
+        <div class="flex justify-between gap-2 items-start mb-1"><span class="text-[10px] px-2 py-0.5 rounded-full ${badge} font-black">${sev}</span><span class="text-[10px] text-gray-500 font-mono">${safe(item.source)}</span></div>
+        <div class="font-black text-gray-100 text-[12px] leading-snug">${safe(item.title)}</div>
+        ${meta ? `<div class="text-[10px] text-sky-300 font-mono mt-1">${safe(meta)}</div>` : ''}
+        <p class="text-gray-400 text-[11px] leading-relaxed mt-1">${safe(item.desc).slice(0,320)}</p>
+        <div class="text-[10px] text-gray-500 mt-2">Integrado en el panel · clic para centrar en el mapa si tiene coordenadas</div>
+      </div>`;
+    }
+
+    function rebuildIncidentDataset(){
+      const trafficItems = state.traffic.map(trafficItemFrom);
+      const railItems = els.toggleRail.checked ? state.rail : [];
+      state.allIncidents = [...trafficItems, ...railItems];
+      renderIncidents();
+    }
+
     function renderIncidents(){
-      const q=$('searchBox').value.trim().toLowerCase();
-      const road=(state.cit.road||'').toLowerCase();
-      const area=(state.cit.area||'').toLowerCase();
-      let list=state.allIncidents.filter(i=>{
-        const text=(i.searchText||'').toLowerCase();
+      const q = els.searchBox.value.trim().toLowerCase();
+      const road = state.cit.road.toLowerCase();
+      const area = state.cit.area.toLowerCase();
+      let list = state.allIncidents.filter(item => {
+        const text = (item.searchText || '').toLowerCase();
         if(q && !text.includes(q)) return false;
-        if(i.type==='traffic'){
-          if(state.cit.type!=='all' && citTypeOf(i)!==state.cit.type) return false;
-          if(road && !String(i.road||'').toLowerCase().includes(road)) return false;
-          if(area && ![i.area,i.tram,i.desc,i.title].join(' ').toLowerCase().includes(area)) return false;
-          if(state.cit.onlyGeo && !(i.lat && i.lon)) return false;
+        if(item.type === 'traffic'){
+          if(state.cit.type !== 'all' && citTypeOf(item) !== state.cit.type) return false;
+          if(road && !String(item.road || '').toLowerCase().includes(road)) return false;
+          if(area && ![item.area,item.tram,item.desc,item.title].join(' ').toLowerCase().includes(area)) return false;
+          if(state.cit.onlyGeo && !(item.lat && item.lon)) return false;
         }
         return true;
       });
-      list.sort((a,b)=>{
-        if(state.cit.sort==='road') return String(a.road||a.title).localeCompare(String(b.road||b.title));
-        if(state.cit.sort==='area') return String(a.area||a.tram||'').localeCompare(String(b.area||b.tram||''));
-        if(state.cit.sort==='type') return citTypeOf(a).localeCompare(citTypeOf(b));
-        return incidentRank(a)-incidentRank(b);
+      list.sort((a,b) => {
+        if(state.cit.sort === 'road') return String(a.road || a.title).localeCompare(String(b.road || b.title));
+        if(state.cit.sort === 'area') return String(a.area || a.tram || '').localeCompare(String(b.area || b.tram || ''));
+        if(state.cit.sort === 'type') return citTypeOf(a).localeCompare(citTypeOf(b));
+        return incidentRank(a) - incidentRank(b);
       });
-      $('incidentList').innerHTML=list.length?list.map(incidentCard).join(''):'<div class="text-center text-gray-500 py-8 font-mono">Sin resultados para el filtro actual.</div>';
-      document.querySelectorAll('.incident-card').forEach(el=>{
-        el.onclick=()=>{const lat=num(el.dataset.lat), lon=num(el.dataset.lon); if(lat&&lon) map.setView([lat,lon],14);};
+      els.incidentList.innerHTML = list.length ? list.map(incidentCard).join('') : '<div class="text-center text-gray-500 py-8 font-mono">Sin resultados para el filtro actual.</div>';
+      document.querySelectorAll('.incident-card').forEach(card => {
+        card.onclick = () => {
+          const lat = num(card.dataset.lat), lon = num(card.dataset.lon);
+          if(Number.isFinite(lat) && Number.isFinite(lon) && lat && lon) map.setView([lat,lon],14);
+        };
       });
-      const trafficCount=list.filter(i=>i.type==='traffic').length;
-      if($('citSummary')) $('citSummary').textContent=`${trafficCount} afectaciones SCT/CIT filtradas · ${state.traffic.length} cargadas`;
-      const top=list.slice(0,4).map(i=>`${i.source}: ${i.title}`).join('  |  ');
-      $('ticker').textContent=top || 'Sin incidencias cargadas. Consulta canales oficiales ante cualquier emergencia.';
+      const trafficCount = list.filter(item => item.type === 'traffic').length;
+      els.citSummary.textContent = `${trafficCount} afectaciones SCT/CIT filtradas · ${state.traffic.length} cargadas`;
+      const top = list.slice(0,4).map(item => `${item.source}: ${item.title}`).join('  |  ');
+      els.ticker.textContent = top || 'Sin incidencias cargadas. Consulta canales oficiales ante cualquier emergencia.';
     }
 
     async function loadTraffic(){
-      $('trafficStatus').innerHTML='<span class="status-dot bg-amber-400 pulse"></span> SCT cargando';
+      els.trafficStatus.innerHTML = '<span class="status-dot bg-amber-400 pulse"></span> SCT cargando';
       state.markers.traffic.clearLayers();
-      const data=await fetchJson(CONFIG.endpoints.traffic);
-      state.traffic=(data||[]).filter(i=>i.latitud&&i.longitud);
-      state.traffic.forEach(inc=>{
-        const lat=num(inc.latitud), lon=num(inc.longitud);
-        const title=`${inc.vvia||'Vía'} ${inc.ptini?`km ${inc.ptini}`:''}`;
-        const desc=`${inc.tipus||'Incidencia'} · ${inc.descripcio||''}`;
+      const data = await getJson(CONFIG.endpoints.traffic);
+      state.traffic = (data || []).filter(item => item.latitud && item.longitud);
+      state.traffic.forEach(inc => {
+        const lat = num(inc.latitud), lon = num(inc.longitud);
+        const title = `${inc.vvia || 'Vía'} ${inc.ptini ? `km ${inc.ptini}` : ''}`;
+        const desc = `${inc.tipus || 'Incidencia'} · ${inc.descripcio || ''}`;
         L.marker([lat,lon],{icon:icons.traffic}).bindPopup(`<b>${safe(title)}</b><br>${safe(desc)}`).addTo(state.markers.traffic);
       });
-      $('kpiTraffic').textContent=state.traffic.length;
-      $('trafficStatus').innerHTML='<span class="status-dot bg-green-400"></span> SCT OK';
+      els.kpiTraffic.textContent = state.traffic.length;
+      els.trafficStatus.innerHTML = '<span class="status-dot bg-green-400"></span> SCT OK';
     }
 
     async function loadRail(){
-      const data=await fetchJson(CONFIG.endpoints.rail);
-      state.rail=(data||[]).map(t=>({
-        source:'Rodalies/transport', type:'rail', title:t.titol||'Aviso ferroviario', desc:t.descripcio||'Sin detalles adicionales', url:'https://rodalies.gencat.cat/ca/alteracions_del_servei/', searchText:[t.titol,t.descripcio,'tren rodalies renfe fgc transport'].join(' ')
+      const data = await getJson(CONFIG.endpoints.rail);
+      state.rail = (data || []).map(item => ({
+        source:'Rodalies/transport', type:'rail', title:item.titol || 'Aviso ferroviario', desc:item.descripcio || 'Sin detalles adicionales', url:'https://rodalies.gencat.cat/ca/alteracions_del_servei/', searchText:[item.titol,item.descripcio,'tren rodalies renfe fgc transport'].join(' ')
       }));
-      $('kpiRail').textContent=state.rail.length;
+      els.kpiRail.textContent = state.rail.length;
     }
 
     async function loadCams(){
       state.markers.cams.clearLayers();
-      const data=await fetchJson(CONFIG.endpoints.cams);
-      state.cams=(data||[]).filter(c=>c.latitud&&c.longitud);
-      state.cams.forEach(cam=>{
-        const lat=num(cam.latitud), lon=num(cam.longitud);
-        const imgUrl=`https://cit.transit.gencat.cat/cit/AppJava/views/camara.xhtml?id=${encodeURIComponent(cam.id_camara||'')}`;
-        L.marker([lat,lon],{icon:icons.cam}).bindPopup(`<b>${safe(cam.nom_camara||'Cámara SCT')}</b><br><a href="${imgUrl}" target="_blank" rel="noopener">Abrir cámara oficial</a>`).addTo(state.markers.cams);
+      const data = await getJson(CONFIG.endpoints.cams);
+      state.cams = (data || []).filter(cam => cam.latitud && cam.longitud);
+      state.cams.forEach(cam => {
+        const lat = num(cam.latitud), lon = num(cam.longitud);
+        const imgUrl = `https://cit.transit.gencat.cat/cit/AppJava/views/camara.xhtml?id=${encodeURIComponent(cam.id_camara || '')}`;
+        L.marker([lat,lon],{icon:icons.cam}).bindPopup(`<b>${safe(cam.nom_camara || 'Cámara SCT')}</b><br><a href="${imgUrl}" target="_blank" rel="noopener">Abrir cámara oficial</a>`).addTo(state.markers.cams);
       });
-      $('kpiCams').textContent=state.cams.length;
+      els.kpiCams.textContent = state.cams.length;
     }
 
     async function loadPanels(){
       state.markers.panels.clearLayers();
-      const data=await fetchJson(CONFIG.endpoints.panels);
-      state.panels=(data||[]).filter(p=>p.latitud&&p.longitud&&(p.text_linia_1||p.text_linia_2||p.text_linia_3));
-      state.panels.forEach(p=>{
-        const lat=num(p.latitud), lon=num(p.longitud); const msg=[p.text_linia_1,p.text_linia_2,p.text_linia_3].filter(Boolean).join('<br>');
-        L.marker([lat,lon],{icon:icons.panel}).bindPopup(`<div style="background:#000;color:#fbbf24;font-family:monospace;padding:8px;border-radius:5px;text-align:center">${safe(msg).replaceAll('&lt;br&gt;','<br>')}</div>`).addTo(state.markers.panels);
+      const data = await getJson(CONFIG.endpoints.panels);
+      state.panels = (data || []).filter(panel => panel.latitud && panel.longitud && (panel.text_linia_1 || panel.text_linia_2 || panel.text_linia_3));
+      state.panels.forEach(panel => {
+        const lat = num(panel.latitud), lon = num(panel.longitud);
+        const msg = [panel.text_linia_1,panel.text_linia_2,panel.text_linia_3].filter(Boolean).map(safe).join('<br>');
+        L.marker([lat,lon],{icon:icons.panel}).bindPopup(`<div style="background:#000;color:#fbbf24;font-family:monospace;padding:8px;border-radius:5px;text-align:center">${msg}</div>`).addTo(state.markers.panels);
       });
-      $('kpiPanels').textContent=state.panels.length;
+      els.kpiPanels.textContent = state.panels.length;
     }
 
-    function trafficItemFrom(inc){
-      const road=inc.vvia||inc.via||inc.carretera||'Vía';
-      const km=[inc.ptini, inc.ptfi].filter(Boolean).join('-');
-      const area=inc.comarca||inc.demarcacio||inc.demarcaci||inc.poblacio||'';
-      const tram=inc.tram||inc.descripcio_tram||inc.descripcio||'';
-      const direction=inc.sentit||inc.cap_a||inc.cap||'';
-      const title=`${road}${km?` km ${km}`:''}`;
-      const desc=[inc.tipus||inc.causa||'Incidencia', inc.nivell_afectacio||inc.nivell||'', inc.descripcio||inc.observacions||''].filter(Boolean).join(' · ');
-      return {source:'SCT/CIT Tráfico', type:'traffic', title, desc, road, km, area, tram, direction, lat:inc.latitud, lon:inc.longitud, searchText:[road,km,area,tram,direction,inc.tipus,inc.causa,inc.nivell_afectacio,inc.descripcio,inc.observacions,'sct cit carretera tráfico transit retencions obres meteorologia mesures'].join(' ')};
-    }
-    function rebuildIncidentDataset(){
-      const trafficItems=state.traffic.map(trafficItemFrom);
-      state.allIncidents=[...trafficItems,...state.rail];
-      renderIncidents();
-    }
-
-
-    function twitterEmbedUrl(handle){
-      return `https://twitter.com/${encodeURIComponent(handle)}?ref_src=twsrc%5Etfw`;
-    }
-
-    function renderXMini(){
-      $('kpiX').textContent = X_CHANNELS.length;
-      $('xChannelsMini').innerHTML = X_CHANNELS.map(c => `<button class="btn !p-2 text-left" data-xhandle="${safe(c.handle)}"><span class="mr-1">${c.icon}</span>@${safe(c.handle)}</button>`).join('');
-      document.querySelectorAll('[data-xhandle]').forEach(btn => btn.onclick = () => openXChannel(btn.dataset.xhandle));
-      $('xLiveSearchBtn').onclick = () => window.open(`https://x.com/search?q=${X_SEARCH_TERMS}&src=typed_query&f=live`, '_blank', 'noopener');
-      $('openXHubBtn').onclick = openXHub;
-    }
+    function twitterEmbedUrl(handle){ return `https://twitter.com/${encodeURIComponent(handle)}?ref_src=twsrc%5Etfw`; }
 
     function loadXWidgets(){
       if(window.twttr && window.twttr.widgets){ window.twttr.widgets.load(); return; }
       if(document.getElementById('twitter-wjs')) return;
-      const js=document.createElement('script'); js.id='twitter-wjs'; js.async=true; js.charset='utf-8'; js.src='https://platform.twitter.com/widgets.js'; document.body.appendChild(js);
+      const js = document.createElement('script');
+      js.id = 'twitter-wjs'; js.async = true; js.charset = 'utf-8'; js.src = 'https://platform.twitter.com/widgets.js';
+      document.body.appendChild(js);
+    }
+
+    function renderXMini(){
+      els.kpiX.textContent = X_CHANNELS.length;
+      els.xChannelsMini.innerHTML = X_CHANNELS.map(channel => `<button class="btn !p-2 text-left" data-xhandle="${safe(channel.handle)}"><span class="mr-1">${channel.icon}</span>@${safe(channel.handle)}</button>`).join('');
+      document.querySelectorAll('[data-xhandle]').forEach(btn => btn.onclick = () => openXChannel(btn.dataset.xhandle));
+      els.xLiveSearchBtn.onclick = () => window.open(`https://x.com/search?q=${X_SEARCH_TERMS}&src=typed_query&f=live`, '_blank', 'noopener');
+      els.openXHubBtn.onclick = openXHub;
     }
 
     function openXHub(){
-      $('modalTitle').textContent = '𝕏 Canales críticos de emergencias';
-      $('modalSubtitle').textContent = 'Interior · Mossos · Protecció Civil · Bombers · SEM';
-      $('modalBody').innerHTML = `<div class="space-y-3">
+      els.modalTitle.textContent = '𝕏 Canales críticos de emergencias';
+      els.modalSubtitle.textContent = 'Interior · Mossos · Protecció Civil · Bombers · SEM';
+      els.modalBody.innerHTML = `<div class="space-y-3">
         <div class="card p-3 text-xs text-amber-100"><b>Modo HTML puro:</b> se integran botones oficiales, búsqueda live prefiltrada y timelines embebidos mediante el widget oficial de X. Si X exige sesión, bloquea cookies de terceros o cambia su política, el timeline puede no cargarse; los botones oficiales seguirán funcionando.</div>
-        <div class="grid sm:grid-cols-2 gap-2">${X_CHANNELS.map(c => `<div class="x-tile"><div class="text-2xl">${c.icon}</div><div><div class="font-black">${safe(c.name)} <span class="text-sky-400">@${safe(c.handle)}</span></div><p class="text-[11px] text-gray-400 mt-1">${safe(c.role)}</p><div class="flex flex-wrap gap-2 mt-2"><button class="text-[10px] text-sky-300 font-black" data-xhandle="${safe(c.handle)}">Ver timeline</button><a class="text-[10px] text-violet-300 font-black" target="_blank" rel="noopener" href="${safe(c.url)}">Abrir X</a><a class="text-[10px] text-green-300 font-black" target="_blank" rel="noopener" href="${safe(c.official)}">Verificación oficial</a></div></div></div>`).join('')}</div>
-        <a class="btn inline-block" target="_blank" rel="noopener" href="https://x.com/search?q=${X_SEARCH_TERMS}&src=typed_query&f=live">Abrir búsqueda live combinada por palabras críticas</a>
+        <div class="grid sm:grid-cols-2 gap-2">${X_CHANNELS.map(channel => `<div class="x-tile"><div class="text-2xl">${channel.icon}</div><div><div class="font-black">${safe(channel.name)} <span class="text-sky-400">@${safe(channel.handle)}</span></div><p class="text-[11px] text-gray-400 mt-1">${safe(channel.role)}</p><div class="flex flex-wrap gap-2 mt-2"><button class="text-[10px] text-sky-400 font-black" data-xhandle="${safe(channel.handle)}">Ver integrado</button><a class="text-[10px] text-green-400 font-black" target="_blank" rel="noopener" href="${safe(channel.official)}">Verificar oficial</a></div></div></div>`).join('')}</div>
+        <a class="btn block text-center" target="_blank" rel="noopener" href="https://x.com/search?q=${X_SEARCH_TERMS}&src=typed_query&f=live">Abrir búsqueda live de emergencias críticas</a>
       </div>`;
-      sourceModal.showModal();
+      els.sourceModal.showModal();
       document.querySelectorAll('[data-xhandle]').forEach(btn => btn.onclick = () => openXChannel(btn.dataset.xhandle));
     }
 
     function openXChannel(handle){
-      const c=X_CHANNELS.find(x=>x.handle===handle); if(!c) return;
-      $('modalTitle').textContent = `${c.icon} ${c.name} @${c.handle}`;
-      $('modalSubtitle').textContent = 'Timeline oficial X · fuente crítica complementaria';
-      $('modalBody').innerHTML = `<div class="space-y-3">
-        <div class="grid sm:grid-cols-3 gap-2"><a class="btn text-center" target="_blank" rel="noopener" href="${safe(c.url)}">Abrir en X</a><a class="btn text-center" target="_blank" rel="noopener" href="${safe(c.official)}">Ver página oficial</a><a class="btn text-center" target="_blank" rel="noopener" href="https://x.com/search?q=${encodeURIComponent('from:'+c.handle+' (emergència OR emergencia OR afectacions OR alerta OR accident OR incendi OR evacuació OR confinament OR 112 OR 061)')}&src=typed_query&f=live">Buscar avisos críticos</a></div>
+      const channel = X_CHANNELS.find(item => item.handle === handle);
+      if(!channel) return;
+      els.modalTitle.textContent = `${channel.icon} ${channel.name} @${channel.handle}`;
+      els.modalSubtitle.textContent = 'Timeline oficial X · fuente crítica complementaria';
+      els.modalBody.innerHTML = `<div class="space-y-3">
+        <div class="grid sm:grid-cols-3 gap-2"><a class="btn text-center" target="_blank" rel="noopener" href="${safe(channel.url)}">Abrir en X</a><a class="btn text-center" target="_blank" rel="noopener" href="${safe(channel.official)}">Ver página oficial</a><a class="btn text-center" target="_blank" rel="noopener" href="https://x.com/search?q=${encodeURIComponent('from:'+channel.handle+' (emergència OR emergencia OR afectacions OR alerta OR accident OR incendi OR evacuació OR confinament OR 112 OR 061)')}&src=typed_query&f=live">Buscar avisos críticos</a></div>
         <div class="card p-3 text-xs text-amber-100"><b>Fiabilidad:</b> X es útil para detección rápida, pero no sustituye llamadas al 112/061 ni los comunicados oficiales. El timeline puede fallar si el navegador bloquea scripts/cookies de terceros.</div>
-        <div class="card p-2 min-h-[560px] bg-black"><a class="twitter-timeline" data-theme="dark" data-height="560" data-chrome="noheader nofooter transparent" href="${twitterEmbedUrl(c.handle)}">Tweets by @${safe(c.handle)}</a></div>
+        <div class="card p-2 min-h-[560px] bg-black"><a class="twitter-timeline" data-theme="dark" data-height="560" data-chrome="noheader nofooter transparent" href="${twitterEmbedUrl(channel.handle)}">Tweets by @${safe(channel.handle)}</a></div>
       </div>`;
-      sourceModal.showModal();
+      els.sourceModal.showModal();
       loadXWidgets();
     }
 
     function renderSources(){
-      const q=$('searchBox').value.trim().toLowerCase();
-      const filtered=OFFICIAL_SOURCES.filter(s=>(state.sourceFilter==='all'||s.type===state.sourceFilter)&&(!q||[s.name,s.type,s.desc,s.priority,s.status].join(' ').toLowerCase().includes(q)));
-      $('kpiSources').textContent=OFFICIAL_SOURCES.length;
-      $('officialSources').innerHTML=filtered.map(s=>{
-        const badge=s.priority==='Crítica'?'badge-red':s.priority==='Alta'?'badge-amber':s.type==='meteo'?'badge-blue':'badge-violet';
-        return `<div class="source-tile" data-source="${safe(s.name)}">
-          <div class="text-2xl">${s.icon}</div><div class="min-w-0 flex-1">
-            <div class="flex items-center justify-between gap-2"><button class="source-open font-black text-left text-sm hover:text-sky-300" data-name="${safe(s.name)}">${safe(s.name)}</button><span class="text-[9px] px-2 py-0.5 rounded-full ${badge} font-black">${safe(s.priority)}</span></div>
-            <p class="text-[11px] text-gray-400 leading-snug mt-1">${safe(s.desc)}</p>
-            <div class="flex flex-wrap gap-1 mt-2"><a class="text-[10px] text-sky-400 font-bold" target="_blank" rel="noopener" href="${safe(s.url)}">Web</a>${s.live?`<a class="text-[10px] text-green-400 font-bold" target="_blank" rel="noopener" href="${safe(s.live)}">Directo</a>`:''}${s.social?`<a class="text-[10px] text-violet-400 font-bold" target="_blank" rel="noopener" href="${safe(s.social)}">X/red social</a>`:''}</div>
+      const q = els.searchBox.value.trim().toLowerCase();
+      const filtered = OFFICIAL_SOURCES.filter(source => (state.sourceFilter === 'all' || source.type === state.sourceFilter) && (!q || [source.name,source.type,source.desc,source.priority,source.status].join(' ').toLowerCase().includes(q)));
+      els.kpiSources.textContent = OFFICIAL_SOURCES.length;
+      els.officialSources.innerHTML = filtered.map(source => {
+        const badge = source.priority === 'Crítica' ? 'badge-red' : source.priority === 'Alta' ? 'badge-amber' : source.type === 'meteo' ? 'badge-blue' : 'badge-violet';
+        return `<div class="source-tile" data-source="${safe(source.name)}">
+          <div class="text-2xl">${source.icon}</div><div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between gap-2"><button class="source-open font-black text-left text-sm hover:text-sky-300" data-name="${safe(source.name)}">${safe(source.name)}</button><span class="text-[9px] px-2 py-0.5 rounded-full ${badge} font-black">${safe(source.priority)}</span></div>
+            <p class="text-[11px] text-gray-400 leading-snug mt-1">${safe(source.desc)}</p>
+            <div class="flex flex-wrap gap-1 mt-2"><a class="text-[10px] text-sky-400 font-bold" target="_blank" rel="noopener" href="${safe(source.url)}">Web</a>${source.live ? `<a class="text-[10px] text-green-400 font-bold" target="_blank" rel="noopener" href="${safe(source.live)}">Directo</a>` : ''}${source.social ? `<a class="text-[10px] text-violet-400 font-bold" target="_blank" rel="noopener" href="${safe(source.social)}">X/red social</a>` : ''}</div>
           </div>
         </div>`;
       }).join('') || '<div class="text-center text-gray-500 py-8 font-mono">Sin fuentes para el filtro.</div>';
-      document.querySelectorAll('.source-open').forEach(btn=>btn.onclick=()=>openSource(btn.dataset.name));
+      document.querySelectorAll('.source-open').forEach(btn => btn.onclick = () => openSource(btn.dataset.name));
     }
 
-    async function openSource(name){
-      const s=OFFICIAL_SOURCES.find(x=>x.name===name); if(!s) return;
-      $('modalTitle').textContent=`${s.icon} ${s.name}`; $('modalSubtitle').textContent=`${s.type.toUpperCase()} · prioridad ${s.priority} · ${s.status}`;
-      const mctInfo = s.name.includes('MCT') ? '<div class="card p-3 text-xs text-sky-200"><b>MCT oficial:</b> este visor del SCT concentra incidencias en tiempo real, densidad del tráfico, cámaras, paneles de mensaje variable, meteorología, restricciones, mercancías peligrosas y datos de zonas fronterizas. En esta versión HTML se enlaza directamente porque el visor completo no es integrable de forma fiable dentro de GitHub Pages.</div>' : '';
-      $('modalBody').innerHTML=`<div class="space-y-3"><p>${safe(s.desc)}</p>${mctInfo}<div class="grid sm:grid-cols-3 gap-2"><a class="btn text-center" target="_blank" rel="noopener" href="${safe(s.url)}">Abrir web oficial</a>${s.live?`<a class="btn text-center" target="_blank" rel="noopener" href="${safe(s.live)}">Abrir directo/noticias</a>`:''}${s.social?`<a class="btn text-center" target="_blank" rel="noopener" href="${safe(s.social)}">Abrir red social</a>`:''}</div><div class="card p-3 text-xs text-amber-200"><b>Nota técnica:</b> desde un único HTML en GitHub Pages no se puede embeber ni leer de forma fiable el MCT completo, X/Twitter, Facebook, AENA o algunas webs oficiales por CORS, iframes bloqueados, autenticación y políticas anti-scraping. Por eso el centro carga datos abiertos cuando existen y deja el visor oficial MCT y otras fuentes verificadas a un clic.</div></div>`;
-      sourceModal.showModal();
+    function openSource(name){
+      const source = OFFICIAL_SOURCES.find(item => item.name === name);
+      if(!source) return;
+      els.modalTitle.textContent = `${source.icon} ${source.name}`;
+      els.modalSubtitle.textContent = `${source.type.toUpperCase()} · prioridad ${source.priority} · ${source.status}`;
+      const mctInfo = source.name.includes('MCT') ? '<div class="card p-3 text-xs text-sky-200"><b>MCT oficial:</b> este visor del SCT concentra incidencias en tiempo real, densidad del tráfico, cámaras, paneles de mensaje variable, meteorología, restricciones, mercancías peligrosas y datos de zonas fronterizas. En esta versión HTML se enlaza directamente porque el visor completo no es integrable de forma fiable dentro de GitHub Pages.</div>' : '';
+      els.modalBody.innerHTML = `<div class="space-y-3"><p>${safe(source.desc)}</p>${mctInfo}<div class="grid sm:grid-cols-3 gap-2"><a class="btn text-center" target="_blank" rel="noopener" href="${safe(source.url)}">Abrir web oficial</a>${source.live ? `<a class="btn text-center" target="_blank" rel="noopener" href="${safe(source.live)}">Abrir directo/noticias</a>` : ''}${source.social ? `<a class="btn text-center" target="_blank" rel="noopener" href="${safe(source.social)}">Abrir red social</a>` : ''}</div><div class="card p-3 text-xs text-amber-200"><b>Nota técnica:</b> desde un único HTML en GitHub Pages no se puede embeber ni leer de forma fiable el MCT completo, X/Twitter, Facebook, AENA o algunas webs oficiales por CORS, iframes bloqueados, autenticación y políticas anti-scraping. Por eso el centro carga datos abiertos cuando existen y deja el visor oficial MCT y otras fuentes verificadas a un clic.</div></div>`;
+      els.sourceModal.showModal();
     }
 
     function openCitIntegrated(){
-      const rows=state.traffic.map(trafficItemFrom).sort((a,b)=>incidentRank(a)-incidentRank(b));
-      $('modalTitle').textContent='🚦 CIT/SCT Incidencias viarias integrado';
-      $('modalSubtitle').textContent='Afectaciones abiertas · filtros equivalentes dentro del centro de control';
-      const byType=rows.reduce((acc,r)=>{const k=citTypeOf(r); acc[k]=(acc[k]||0)+1; return acc;},{});
-      $('modalBody').innerHTML=`<div class="space-y-3">
+      const rows = state.traffic.map(trafficItemFrom).sort((a,b) => incidentRank(a) - incidentRank(b));
+      els.modalTitle.textContent = '🚦 CIT/SCT Incidencias viarias integrado';
+      els.modalSubtitle.textContent = 'Afectaciones abiertas · filtros equivalentes dentro del centro de control';
+      const byType = rows.reduce((acc,row) => { const key = citTypeOf(row); acc[key] = (acc[key] || 0) + 1; return acc; }, {});
+      els.modalBody.innerHTML = `<div class="space-y-3">
         <div class="card p-3 text-xs text-sky-100"><b>Integración interna:</b> este módulo replica en el centro de control la lista operativa de afectaciones abiertas del CIT/SCT usando el dataset oficial de incidencias viarias que ya carga el mapa. No abre una ventana externa ni depende de enlaces para consultar la información básica.</div>
         <div class="grid grid-cols-2 md:grid-cols-6 gap-2 text-center">
-          ${['tall','retencions','obres','meteorologia','mesures','info'].map(k=>`<div class="kpi"><div class="text-[10px] uppercase text-gray-500 font-black">${k}</div><div class="text-lg font-black">${byType[k]||0}</div></div>`).join('')}
+          ${['tall','retencions','obres','meteorologia','mesures','info'].map(key => `<div class="kpi"><div class="text-[10px] uppercase text-gray-500 font-black">${key}</div><div class="text-lg font-black">${byType[key] || 0}</div></div>`).join('')}
         </div>
         <div class="overflow-auto card p-2"><table class="mini-table"><thead><tr><th>Tipo</th><th>Vía</th><th>Km</th><th>Área/tramo</th><th>Detalle</th></tr></thead><tbody>
-          ${rows.slice(0,120).map(r=>`<tr><td>${safe(citTypeOf(r))}</td><td class="font-black text-red-200">${safe(r.road)}</td><td>${safe(r.km||'-')}</td><td>${safe(r.area||r.tram||'-')}</td><td>${safe(r.desc).slice(0,180)}</td></tr>`).join('') || '<tr><td colspan="5">No hay incidencias cargadas.</td></tr>'}
+          ${rows.slice(0,120).map(row => `<tr><td>${safe(citTypeOf(row))}</td><td class="font-black text-red-200">${safe(row.road)}</td><td>${safe(row.km || '-')}</td><td>${safe(row.area || row.tram || '-')}</td><td>${safe(row.desc).slice(0,180)}</td></tr>`).join('') || '<tr><td colspan="5">No hay incidencias cargadas.</td></tr>'}
         </tbody></table></div>
         <div class="card p-3 text-xs text-amber-100"><b>Nota técnica:</b> la página original incidents.xhtml del CIT es una aplicación web con formularios y carga dinámica. En un HTML estático de GitHub Pages no se puede copiar su aplicación interna completa si el servidor bloquea lectura cruzada o cambia sus scripts. Por eso aquí queda implementada la función útil: listado, filtros, ordenación, mapa y actualización automática con datos oficiales abiertos.</div>
       </div>`;
-      sourceModal.showModal();
+      els.sourceModal.showModal();
     }
 
     function applyLayerVisibility(){
-      $('toggleTraffic').checked ? map.addLayer(state.markers.traffic) : map.removeLayer(state.markers.traffic);
-      $('toggleCams').checked ? map.addLayer(state.markers.cams) : map.removeLayer(state.markers.cams);
-      $('togglePanels').checked ? map.addLayer(state.markers.panels) : map.removeLayer(state.markers.panels);
+      els.toggleTraffic.checked ? map.addLayer(state.markers.traffic) : map.removeLayer(state.markers.traffic);
+      els.toggleCams.checked ? map.addLayer(state.markers.cams) : map.removeLayer(state.markers.cams);
+      els.togglePanels.checked ? map.addLayer(state.markers.panels) : map.removeLayer(state.markers.panels);
+    }
+
+    function syncCitState(){
+      state.cit.type = els.citType.value;
+      state.cit.sort = els.citSort.value;
+      state.cit.road = els.citRoad.value;
+      state.cit.area = els.citArea.value;
+      state.cit.onlyGeo = els.citOnlyGeo.checked;
+      renderIncidents();
     }
 
     async function refreshAll(){
-      $('globalStatus').innerHTML='<span class="status-dot bg-amber-400 pulse"></span> Actualizando';
-      const tasks=[loadTraffic(),loadRail(),loadCams(),loadPanels()];
-      const results=await Promise.allSettled(tasks);
-      const failed=results.filter(r=>r.status==='rejected');
-      if(failed.length) console.warn('Fuentes con error:',failed.map(f=>f.reason));
-      rebuildIncidentDataset(); renderSources(); renderXMini(); applyLayerVisibility();
-      $('kpiUpdated').textContent=fmtTime(new Date());
-      $('globalStatus').innerHTML=failed.length?`<span class="status-dot bg-amber-400"></span> ${failed.length} fuente/s con error`:'<span class="status-dot bg-green-400"></span> Operativo';
-      $('sourcesStatus').innerHTML='<span class="status-dot bg-green-400"></span> '+OFFICIAL_SOURCES.length+' fuentes';
+      els.globalStatus.innerHTML = '<span class="status-dot bg-amber-400 pulse"></span> Actualizando';
+      const results = await Promise.allSettled([loadTraffic(), loadRail(), loadCams(), loadPanels()]);
+      const failed = results.filter(result => result.status === 'rejected');
+      if(failed.length) console.warn('Fuentes con error:', failed.map(item => item.reason));
+      rebuildIncidentDataset();
+      renderSources();
+      renderXMini();
+      applyLayerVisibility();
+      els.kpiUpdated.textContent = fmtTime(new Date());
+      els.globalStatus.innerHTML = failed.length ? `<span class="status-dot bg-amber-400"></span> ${failed.length} fuente/s con error` : '<span class="status-dot bg-green-400"></span> Operativo';
+      els.sourcesStatus.innerHTML = '<span class="status-dot bg-green-400"></span> ' + OFFICIAL_SOURCES.length + ' fuentes';
     }
 
-    $('refreshBtn').onclick=refreshAll; $('fitBtn').onclick=()=>map.fitBounds(CONFIG.catalunyaBounds);
-    if($('openCitBtn')) $('openCitBtn').onclick=openCitIntegrated;
-    if($('toggleCitPanelBtn')) $('toggleCitPanelBtn').onclick=()=>{$('citPanel').classList.toggle('hidden');};
-    ['toggleTraffic','toggleCams','togglePanels'].forEach(id=>$(id).addEventListener('change',applyLayerVisibility));
-    $('toggleRail').addEventListener('change',()=>{ rebuildIncidentDataset(); });
-    $('searchBox').addEventListener('input',()=>{renderIncidents(); renderSources();});
-    ['citType','citSort','citRoad','citArea','citOnlyGeo'].forEach(id=>$(id).addEventListener(id==='citRoad'||id==='citArea'?'input':'change',()=>{state.cit.type=$('citType').value; state.cit.sort=$('citSort').value; state.cit.road=$('citRoad').value; state.cit.area=$('citArea').value; state.cit.onlyGeo=$('citOnlyGeo').checked; renderIncidents();}));
-    $('resetCitFilters').onclick=()=>{$('citType').value='all'; $('citSort').value='severity'; $('citRoad').value=''; $('citArea').value=''; $('citOnlyGeo').checked=false; state.cit={type:'all', sort:'severity', road:'', area:'', onlyGeo:false}; renderIncidents();};
-    document.querySelectorAll('.sourceFilter').forEach(btn=>btn.onclick=()=>{state.sourceFilter=btn.dataset.filter; renderSources();});
-
-    rebuildIncidentDataset = function(){
-      const trafficItems=state.traffic.map(trafficItemFrom);
-      state.allIncidents=[...trafficItems, ...($('toggleRail').checked?state.rail:[])];
+    els.refreshBtn.onclick = refreshAll;
+    els.fitBtn.onclick = () => map.fitBounds(CONFIG.catalunyaBounds);
+    els.openCitBtn.onclick = openCitIntegrated;
+    els.toggleCitPanelBtn.onclick = () => els.citPanel.classList.toggle('hidden');
+    els.toggleTraffic.addEventListener('change', applyLayerVisibility);
+    els.toggleCams.addEventListener('change', applyLayerVisibility);
+    els.togglePanels.addEventListener('change', applyLayerVisibility);
+    els.toggleRail.addEventListener('change', rebuildIncidentDataset);
+    els.searchBox.addEventListener('input', () => { renderIncidents(); renderSources(); });
+    [els.citType, els.citSort, els.citOnlyGeo].forEach(element => element.addEventListener('change', syncCitState));
+    [els.citRoad, els.citArea].forEach(element => element.addEventListener('input', syncCitState));
+    els.resetCitFilters.onclick = () => {
+      els.citType.value = 'all'; els.citSort.value = 'severity'; els.citRoad.value = ''; els.citArea.value = ''; els.citOnlyGeo.checked = false;
+      state.cit = {type:'all', sort:'severity', road:'', area:'', onlyGeo:false};
       renderIncidents();
     };
+    document.querySelectorAll('.sourceFilter').forEach(btn => btn.onclick = () => { state.sourceFilter = btn.dataset.filter; renderSources(); });
 
     refreshAll();
-    setInterval(refreshAll, CONFIG.refreshMs);
+    state.refreshTimer = setInterval(refreshAll, CONFIG.refreshMs);
   </script>
 </body>
 </html>
