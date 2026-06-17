@@ -1,235 +1,607 @@
 <!DOCTYPE html>
-<html lang="ca">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CECAT - Centre de Comandament Territorial de Catalunya</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-        #map { height: calc(100vh - 140px); }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #111827; }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Centro privado de control de información de emergencias: tráfico, trenes, cámaras, paneles y mapa operativo." />
+  <title>Centro Privado de Control de Emergencias | Catalunya</title>
+
+  <!-- Librerías externas: válido para GitHub Pages sin instalación -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: #0f172a;
+      --panel-2: #111827;
+      --line: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --blue: #38bdf8;
+      --green: #22c55e;
+    }
+
+    html, body { height: 100%; }
+    body { background: var(--bg); color: var(--text); }
+    #map { height: calc(100vh - 220px); min-height: 420px; }
+
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: #0b1220; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    .glass {
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(55, 65, 81, 0.85);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .leaflet-popup-content-wrapper,
+    .leaflet-popup-tip {
+      background: #0f172a;
+      color: #e5e7eb;
+      border: 1px solid #334155;
+    }
+
+    .leaflet-control-attribution {
+      background: rgba(15, 23, 42, 0.8) !important;
+      color: #cbd5e1 !important;
+    }
+
+    .marker-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+      color: white;
+      font-size: 11px;
+      font-weight: 900;
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.18), 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .marker-red { background: #dc2626; }
+    .marker-amber { background: #d97706; }
+    .marker-blue { background: #0284c7; }
+    .marker-green { background: #16a34a; }
+
+    .status-ok { color: #22c55e; }
+    .status-warn { color: #f59e0b; }
+    .status-error { color: #ef4444; }
+
+    @media (max-width: 1279px) {
+      body { overflow: auto; }
+      #map { height: 62vh; min-height: 420px; }
+    }
+  </style>
 </head>
-<body class="bg-gray-950 text-gray-100 font-sans overflow-hidden">
-
-    <header class="bg-gray-900 border-b border-gray-800 p-4 flex justify-between items-center shadow-md">
-        <div class="flex items-center space-x-3">
-            <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse"></div>
-            <h1 class="text-xl font-black tracking-wider text-red-500">SISTEMA INTEGRAT D'EMERGÈNCIES | CATALUNYA</h1>
+<body class="font-sans overflow-hidden xl:overflow-hidden">
+  <header class="bg-slate-950/95 border-b border-slate-800 px-4 py-3 shadow-xl">
+    <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse"></div>
+          <div class="absolute inset-0 w-3 h-3 bg-red-600 rounded-full animate-ping opacity-50"></div>
         </div>
-        <div class="flex items-center space-x-6">
-            <div class="flex items-center space-x-4 bg-gray-950 px-3 py-1.5 rounded border border-gray-800 text-xs">
-                <label class="flex items-center space-x-2 cursor-pointer text-blue-400">
-                    <input type="checkbox" id="tick-cameres" class="rounded bg-gray-900 border-gray-700 text-blue-600 focus:ring-0">
-                    <span>📹 Càmeres en Viu</span>
-                </label>
-                <label class="flex items-center space-x-2 cursor-pointer text-amber-400">
-                    <input type="checkbox" id="tick-panells" class="rounded bg-gray-900 border-gray-700 text-amber-600 focus:ring-0" checked>
-                    <span>📟 Panells Informatius</span>
-                </label>
-            </div>
-            <div class="text-sm text-gray-400 font-mono" id="live-clock">CARREGANT...</div>
+        <div>
+          <h1 class="text-lg xl:text-xl font-black tracking-wide text-red-500 uppercase">Centro privado de control de emergencias</h1>
+          <p class="text-[11px] text-slate-400 uppercase tracking-widest">Catalunya · tráfico · transporte · cámaras · paneles · mapa operativo</p>
         </div>
-    </header>
+      </div>
 
-    <main class="grid grid-cols-1 xl:grid-cols-5 gap-4 p-4 h-[calc(100vh-68px)]">
-        
-        <section class="bg-gray-900 border border-gray-800 rounded-lg p-4 flex flex-col overflow-hidden">
-            <div class="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
-                <h2 class="text-sm font-bold uppercase tracking-widest text-orange-500">🚆 Transport Ferroviari</h2>
-                <span class="text-[10px] bg-orange-950 text-orange-400 px-1.5 py-0.5 rounded border border-orange-900 font-mono">ATM / INCIDÈNCIES</span>
-            </div>
-            <div id="trenes-list" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs">
-                <div class="text-gray-500 text-center py-8 font-mono">Connectant amb l'estat de la xarxa...</div>
-            </div>
-        </section>
+      <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
+        <div class="flex items-center gap-3 bg-slate-900 border border-slate-800 px-3 py-2 rounded-lg text-xs">
+          <label class="flex items-center gap-2 cursor-pointer text-red-300">
+            <input type="checkbox" id="layer-transit" class="accent-red-600" checked />
+            <span>Tráfico</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer text-blue-300">
+            <input type="checkbox" id="layer-cameras" class="accent-blue-600" />
+            <span>Cámaras</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer text-amber-300">
+            <input type="checkbox" id="layer-panels" class="accent-amber-500" checked />
+            <span>Paneles</span>
+          </label>
+        </div>
 
-        <section class="xl:col-span-3 bg-gray-900 border border-gray-800 rounded-lg p-2 flex flex-col relative">
-            <div id="map" class="rounded-lg overflow-hidden border border-gray-800"></div>
-        </section>
+        <button id="btn-refresh" class="bg-red-700 hover:bg-red-600 active:bg-red-800 transition text-white text-xs font-bold px-4 py-2 rounded-lg border border-red-500/40">
+          Actualizar ahora
+        </button>
 
-        <section class="bg-gray-900 border border-gray-800 rounded-lg p-4 flex flex-col overflow-hidden">
-            <div class="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
-                <h2 class="text-sm font-bold uppercase tracking-widest text-red-500">⚠️ Trànsit Temps Real</h2>
-                <span class="text-[10px] bg-red-950 text-red-400 px-1.5 py-0.5 rounded border border-red-900 font-mono">SCT</span>
-            </div>
-            <div id="incidencies-list" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs">
-                <div class="text-gray-500 text-center py-8 font-mono">Sincronitzant SCT...</div>
-            </div>
-        </section>
+        <div class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-lg text-xs font-mono text-slate-300 min-w-[230px] text-center" id="live-clock">
+          Cargando reloj...
+        </div>
+      </div>
+    </div>
+  </header>
 
-    </main>
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 pb-0">
+    <article class="glass rounded-xl p-3">
+      <p class="text-[10px] text-slate-400 uppercase tracking-widest">Incidencias tráfico</p>
+      <div class="flex items-end justify-between mt-1">
+        <strong id="count-transit" class="text-2xl text-red-400">—</strong>
+        <span id="status-transit" class="text-[10px] status-warn font-mono">Pendiente</span>
+      </div>
+    </article>
+    <article class="glass rounded-xl p-3">
+      <p class="text-[10px] text-slate-400 uppercase tracking-widest">Avisos transporte</p>
+      <div class="flex items-end justify-between mt-1">
+        <strong id="count-trains" class="text-2xl text-orange-400">—</strong>
+        <span id="status-trains" class="text-[10px] status-warn font-mono">Pendiente</span>
+      </div>
+    </article>
+    <article class="glass rounded-xl p-3">
+      <p class="text-[10px] text-slate-400 uppercase tracking-widest">Cámaras cargadas</p>
+      <div class="flex items-end justify-between mt-1">
+        <strong id="count-cameras" class="text-2xl text-blue-400">—</strong>
+        <span id="status-cameras" class="text-[10px] status-warn font-mono">Pendiente</span>
+      </div>
+    </article>
+    <article class="glass rounded-xl p-3">
+      <p class="text-[10px] text-slate-400 uppercase tracking-widest">Paneles activos</p>
+      <div class="flex items-end justify-between mt-1">
+        <strong id="count-panels" class="text-2xl text-amber-400">—</strong>
+        <span id="status-panels" class="text-[10px] status-warn font-mono">Pendiente</span>
+      </div>
+    </article>
+  </section>
 
-    <script>
-        // 1. Rellotge
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('live-clock').innerText = now.toLocaleString('ca-ES', { timeZone: 'Europe/Madrid' }) + ' (BCN)';
-        }
-        setInterval(updateClock, 1000); 
-        updateClock();
+  <main class="grid grid-cols-1 xl:grid-cols-5 gap-4 p-4 h-[calc(100vh-150px)] xl:overflow-hidden">
+    <aside class="glass rounded-xl p-4 flex flex-col overflow-hidden min-h-[360px]">
+      <div class="border-b border-slate-800 pb-3 mb-3">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="text-sm font-black uppercase tracking-widest text-orange-400">🚆 Transporte</h2>
+          <span class="text-[10px] bg-orange-950 text-orange-300 px-2 py-1 rounded border border-orange-900 font-mono">Avisos</span>
+        </div>
+        <input id="search-trains" type="search" placeholder="Filtrar transporte..." class="mt-3 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs outline-none focus:border-orange-600" />
+      </div>
+      <div id="trains-list" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs">
+        <div class="text-slate-500 text-center py-8 font-mono">Conectando con transporte...</div>
+      </div>
+    </aside>
 
-        // 2. Inicialització de Leaflet amb OpenStreetMap Estàndard
-        const map = L.map('map').setView([41.75, 1.95], 8);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap'
-        }).addTo(map);
+    <section class="xl:col-span-3 glass rounded-xl p-2 flex flex-col relative overflow-hidden">
+      <div class="absolute z-[400] top-5 left-5 right-5 md:right-auto md:w-[420px] glass rounded-xl p-3">
+        <div class="flex items-center gap-2">
+          <input id="global-search" type="search" placeholder="Buscar vía, municipio, descripción o línea..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs outline-none focus:border-red-600" />
+          <button id="btn-clear-search" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg">Limpiar</button>
+        </div>
+        <p id="last-update" class="mt-2 text-[10px] text-slate-400 font-mono">Última actualización: pendiente</p>
+      </div>
+      <div id="map" class="rounded-xl overflow-hidden border border-slate-800"></div>
+    </section>
 
-        // Forçar renderitzat correcte
-        setTimeout(() => { map.invalidateSize(); }, 400);
+    <aside class="glass rounded-xl p-4 flex flex-col overflow-hidden min-h-[360px]">
+      <div class="border-b border-slate-800 pb-3 mb-3">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="text-sm font-black uppercase tracking-widest text-red-400">⚠️ Tráfico</h2>
+          <span class="text-[10px] bg-red-950 text-red-300 px-2 py-1 rounded border border-red-900 font-mono">SCT</span>
+        </div>
+        <input id="search-transit" type="search" placeholder="Filtrar incidencias..." class="mt-3 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs outline-none focus:border-red-600" />
+      </div>
+      <div id="transit-list" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs">
+        <div class="text-slate-500 text-center py-8 font-mono">Sincronizando tráfico...</div>
+      </div>
+    </aside>
+  </main>
 
-        // Grups de capes per als Ticks
-        const layerCameres = L.layerGroup();
-        const layerPanells = L.layerGroup().addTo(map); 
+  <script>
+    'use strict';
 
-        // Escoltadors d'esdeveniments dels Ticks
-        document.getElementById('tick-cameres').addEventListener('change', function(e) {
-            if(e.target.checked) { map.addLayer(layerCameres); } else { map.removeLayer(layerCameres); }
+    /**********************************************************************
+     * CENTRO PRIVADO DE CONTROL DE EMERGENCIAS
+     * Archivo único HTML listo para subir a GitHub Pages.
+     *
+     * Fuentes usadas:
+     * - Incidencias viarias SCT: analisi.transparenciacatalunya.cat/resource/636n-5b5g.json
+     * - Avisos transporte: analisi.transparenciacatalunya.cat/resource/92ee-9694.json
+     * - Cámaras SCT: analisi.transparenciacatalunya.cat/resource/9tbq-v22s.json
+     * - Paneles informativos: analisi.transparenciacatalunya.cat/resource/6vvf-923f.json
+     **********************************************************************/
+
+    const CONFIG = {
+      refreshMs: 120000,
+      timezone: 'Europe/Madrid',
+      defaultCenter: [41.75, 1.95],
+      defaultZoom: 8,
+      sources: {
+        transit: 'https://analisi.transparenciacatalunya.cat/resource/636n-5b5g.json?$limit=100',
+        trains: 'https://analisi.transparenciacatalunya.cat/resource/92ee-9694.json?$limit=60',
+        cameras: 'https://analisi.transparenciacatalunya.cat/resource/9tbq-v22s.json?$limit=250',
+        panels: 'https://analisi.transparenciacatalunya.cat/resource/6vvf-923f.json?$limit=250'
+      }
+    };
+
+    const state = {
+      transit: [],
+      trains: [],
+      cameras: [],
+      panels: [],
+      lastRefresh: null,
+      loading: false
+    };
+
+    const els = {
+      clock: document.getElementById('live-clock'),
+      lastUpdate: document.getElementById('last-update'),
+      btnRefresh: document.getElementById('btn-refresh'),
+      btnClearSearch: document.getElementById('btn-clear-search'),
+      globalSearch: document.getElementById('global-search'),
+      searchTransit: document.getElementById('search-transit'),
+      searchTrains: document.getElementById('search-trains'),
+      transitList: document.getElementById('transit-list'),
+      trainsList: document.getElementById('trains-list'),
+      layerTransit: document.getElementById('layer-transit'),
+      layerCameras: document.getElementById('layer-cameras'),
+      layerPanels: document.getElementById('layer-panels'),
+      countTransit: document.getElementById('count-transit'),
+      countTrains: document.getElementById('count-trains'),
+      countCameras: document.getElementById('count-cameras'),
+      countPanels: document.getElementById('count-panels'),
+      statusTransit: document.getElementById('status-transit'),
+      statusTrains: document.getElementById('status-trains'),
+      statusCameras: document.getElementById('status-cameras'),
+      statusPanels: document.getElementById('status-panels')
+    };
+
+    // Mapa
+    const map = L.map('map', { zoomControl: true }).setView(CONFIG.defaultCenter, CONFIG.defaultZoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    const layers = {
+      transit: L.layerGroup().addTo(map),
+      cameras: L.layerGroup(),
+      panels: L.layerGroup().addTo(map)
+    };
+
+    setTimeout(() => map.invalidateSize(), 350);
+    window.addEventListener('resize', () => setTimeout(() => map.invalidateSize(), 150));
+
+    function icon(className, label) {
+      return L.divIcon({
+        html: `<div class="marker-dot ${className}">${label}</div>`,
+        className: '',
+        iconSize: [22, 22],
+        iconAnchor: [11, 11],
+        popupAnchor: [0, -12]
+      });
+    }
+
+    const icons = {
+      transit: icon('marker-red', '!'),
+      camera: icon('marker-blue', 'C'),
+      panel: icon('marker-amber', 'P')
+    };
+
+    function updateClock() {
+      const now = new Date();
+      els.clock.textContent = now.toLocaleString('es-ES', {
+        timeZone: CONFIG.timezone,
+        weekday: 'short',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }) + ' BCN';
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function normalizeNumber(value) {
+      if (value === undefined || value === null || value === '') return null;
+      const num = Number(String(value).replace(',', '.'));
+      return Number.isFinite(num) ? num : null;
+    }
+
+    function includesText(obj, query) {
+      if (!query) return true;
+      const q = query.toLowerCase().trim();
+      return Object.values(obj).some(value => String(value ?? '').toLowerCase().includes(q));
+    }
+
+    function setStatus(el, text, type = 'warn') {
+      el.textContent = text;
+      el.classList.remove('status-ok', 'status-warn', 'status-error');
+      el.classList.add(type === 'ok' ? 'status-ok' : type === 'error' ? 'status-error' : 'status-warn');
+    }
+
+    async function fetchJson(url) {
+      // Primero intenta la petición directa. Si GitHub Pages/navegador bloquea por CORS,
+      // usa AllOrigins como respaldo para mantener el HTML funcionando sin backend.
+      try {
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.json();
+      } catch (directError) {
+        const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+        const response = await fetch(proxy, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`Proxy HTTP ${response.status}`);
+        const wrapper = await response.json();
+        return JSON.parse(wrapper.contents || '[]');
+      }
+    }
+
+    function updateCounters() {
+      els.countTransit.textContent = state.transit.length;
+      els.countTrains.textContent = state.trains.length;
+      els.countCameras.textContent = state.cameras.length;
+      els.countPanels.textContent = state.panels.length;
+
+      if (state.lastRefresh) {
+        els.lastUpdate.textContent = 'Última actualización: ' + state.lastRefresh.toLocaleString('es-ES', {
+          timeZone: CONFIG.timezone,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
         });
-        document.getElementById('tick-panells').addEventListener('change', function(e) {
-            if(e.target.checked) { map.addLayer(layerPanells); } else { map.removeLayer(layerPanells); }
-        });
+      }
+    }
 
-        // Funció d'ajuda per fer peticions usant el proxy AllOrigins (evita fallades de CORS)
-        async function fetchWithProxy(url) {
-            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-            const response = await fetch(proxyUrl);
-            const wrapper = await response.json();
-            return JSON.parse(wrapper.contents);
-        }
+    function buildTransitItem(inc) {
+      const via = inc.vvia || inc.via || inc.codi_carretera || 'Vía no indicada';
+      const km = inc.ptini || inc.pk_inici || '?';
+      const tipo = inc.tipus || inc.tipus_afectacio || 'Incidencia';
+      const desc = inc.descripcio || inc.descripci_ || inc.afectacio || 'Sin descripción disponible';
+      const municipio = inc.municipi || inc.nom_municipi || '';
 
-        // 3. Incidències de Trànsit
-        async function fetchTransit() {
-            const listContainer = document.getElementById('incidencies-list');
-            try {
-                const data = await fetchWithProxy('https://analisi.transparenciacatalunya.cat/resource/636n-5b5g.json?$limit=40');
-                listContainer.innerHTML = '';
-                
-                if(!data || data.length === 0) {
-                    listContainer.innerHTML = '<div class="text-green-500 font-mono text-center py-4">🟢 Sense incidències viàries.</div>';
-                    return;
-                }
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'w-full text-left bg-slate-950 p-3 rounded-lg border-l-4 border-red-600 border-y border-r border-slate-800 hover:border-slate-600 transition';
+      item.innerHTML = `
+        <div class="flex justify-between items-center gap-2 mb-1">
+          <span class="font-black text-red-300 bg-red-950/60 px-2 py-1 rounded text-[10px] border border-red-900">${escapeHtml(via)} · Km ${escapeHtml(km)}</span>
+          <span class="text-[9px] text-slate-500 font-mono">SCT</span>
+        </div>
+        <p class="text-slate-200 font-semibold text-[11px]">${escapeHtml(tipo)}</p>
+        <p class="text-slate-400 text-[10px] mt-1 leading-relaxed">${escapeHtml(desc)}</p>
+        ${municipio ? `<p class="text-slate-500 text-[10px] mt-2">📍 ${escapeHtml(municipio)}</p>` : ''}
+      `;
 
-                data.forEach(inc => {
-                    if(!inc.latitud || !inc.longitud) return;
-                    
-                    const item = document.createElement('div');
-                    item.className = 'bg-gray-950 p-3 rounded border-l-4 border-red-600 border-y border-r border-gray-800 hover:border-gray-700 transition cursor-pointer';
-                    item.innerHTML = `
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-red-400 bg-red-950/50 px-1.5 py-0.5 rounded text-[10px] border border-red-900">${inc.vvia || 'Via'} (Km ${inc.ptini || '?'})</span>
-                        </div>
-                        <p class="text-gray-300 font-medium text-[11px]">${inc.tipus || 'Incidència'}</p>
-                        <p class="text-gray-400 text-[10px] mt-1">${inc.descripcio || ''}</p>
-                    `;
-                    item.onclick = () => map.setView([inc.latitud, inc.longitud], 14);
-                    listContainer.appendChild(item);
+      const lat = normalizeNumber(inc.latitud);
+      const lon = normalizeNumber(inc.longitud);
+      if (lat !== null && lon !== null) item.onclick = () => map.setView([lat, lon], 14);
+      return item;
+    }
 
-                    L.marker([inc.latitud, inc.longitud])
-                        .addTo(map)
-                        .bindPopup(`<div class="text-gray-900 text-xs"><b>${inc.vvia || 'Via'}</b>: ${inc.descripcio || 'Incidència'}</div>`);
-                });
-            } catch (e) { 
-                console.error(e);
-                listContainer.innerHTML = '<div class="text-red-500 font-mono text-center py-4">⚠️ Error de connexió SCT</div>'; 
-            }
-        }
+    function buildTrainItem(tren) {
+      const title = tren.titol || tren.titulo || 'Aviso de transporte';
+      const desc = tren.descripcio || tren.descripcion || 'Sin detalles adicionales';
+      const line = tren.linia || tren.linea || tren.operador || 'Servicio';
+      const rawDate = tren.data_inici || tren.fecha_inicio || tren.data || '';
+      const date = rawDate ? new Date(rawDate).toLocaleDateString('es-ES') : 'Ahora';
 
-        // 4. Incidències de Trens (Línies i Transports Gencat)
-        async function fetchTrenes() {
-            const listContainer = document.getElementById('trenes-list');
-            try {
-                const data = await fetchWithProxy('https://analisi.transparenciacatalunya.cat/resource/92ee-9694.json?$limit=20');
-                listContainer.innerHTML = '';
+      const item = document.createElement('article');
+      item.className = 'bg-slate-950 p-3 rounded-lg border-l-4 border-orange-500 border-y border-r border-slate-800';
+      item.innerHTML = `
+        <div class="flex justify-between items-center gap-2 mb-1">
+          <span class="font-black text-orange-300 uppercase text-[10px]">${escapeHtml(line)}</span>
+          <span class="text-[9px] text-slate-500 font-mono">${escapeHtml(date)}</span>
+        </div>
+        <p class="text-slate-200 font-semibold text-[11px] mb-1">${escapeHtml(title)}</p>
+        <p class="text-slate-400 text-[10px] leading-relaxed">${escapeHtml(desc)}</p>
+      `;
+      return item;
+    }
 
-                if(!data || data.length === 0) {
-                    listContainer.innerHTML = '<div class="text-green-500 font-mono text-center py-4">🟢 Circulació de trens normal.</div>';
-                    return;
-                }
+    function renderLists() {
+      const globalQuery = els.globalSearch.value.trim();
+      const transitQuery = [globalQuery, els.searchTransit.value.trim()].filter(Boolean).join(' ');
+      const trainQuery = [globalQuery, els.searchTrains.value.trim()].filter(Boolean).join(' ');
 
-                data.forEach(tren => {
-                    const titol = tren.titol || 'Avís de transport';
-                    const desc = tren.descripcio || 'Sense detalls adicionals';
-                    const dataInici = tren.data_inici ? new Date(tren.data_inici).toLocaleDateString('ca-ES') : 'Ara';
+      const transitItems = state.transit.filter(item => includesText(item, transitQuery));
+      els.transitList.innerHTML = '';
+      if (!transitItems.length) {
+        els.transitList.innerHTML = '<div class="text-green-400 font-mono text-center py-6">Sin incidencias coincidentes.</div>';
+      } else {
+        transitItems.forEach(item => els.transitList.appendChild(buildTransitItem(item)));
+      }
 
-                    const item = document.createElement('div');
-                    item.className = 'bg-gray-950 p-3 rounded border-l-4 border-orange-500 border-y border-r border-gray-800';
-                    item.innerHTML = `
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-orange-400 uppercase text-[10px]">Estat del Servei</span>
-                            <span class="text-[9px] text-gray-500 font-mono">${dataInici}</span>
-                        </div>
-                        <p class="text-gray-300 font-semibold text-[11px] mb-1">${titol}</p>
-                        <p class="text-gray-400 text-[10px] leading-relaxed">${desc}</p>
-                    `;
-                    listContainer.appendChild(item);
-                });
-            } catch (e) { 
-                console.error(e);
-                listContainer.innerHTML = '<div class="text-red-500 font-mono text-center py-4">⚠️ Error Rodalies/FGC</div>'; 
-            }
-        }
+      const trainItems = state.trains.filter(item => includesText(item, trainQuery));
+      els.trainsList.innerHTML = '';
+      if (!trainItems.length) {
+        els.trainsList.innerHTML = '<div class="text-green-400 font-mono text-center py-6">Sin avisos coincidentes.</div>';
+      } else {
+        trainItems.forEach(item => els.trainsList.appendChild(buildTrainItem(item)));
+      }
+    }
 
-        // 5. Càmeres de Trànsit
-        async function fetchCameres() {
-            try {
-                const data = await fetchWithProxy('https://analisi.transparenciacatalunya.cat/resource/9tbq-v22s.json?$limit=150');
+    function renderTransitMarkers() {
+      layers.transit.clearLayers();
+      const bounds = [];
 
-                data.forEach(cam => {
-                    if(!cam.latitud || !cam.longitud) return;
-                    const imgUrl = `https://cit.transit.gencat.cat/cit/AppJava/views/camara.xhtml?id=${cam.id_camara}`;
-                    
-                    const camMarker = L.marker([cam.latitud, cam.longitud]);
-                    camMarker.bindPopup(`
-                        <div class="text-xs font-mono font-bold text-gray-900 mb-1">${cam.nom_camara || 'Càmera'}</div>
-                        <img src="${imgUrl}" alt="Càmera SCT" style="width:240px; height:180px; border-radius:4px;" onerror="this.src='https://via.placeholder.com/240x180?text=Imatge+no+disponible'"/>
-                    `, { maxWidth: 260 });
+      state.transit.forEach(inc => {
+        const lat = normalizeNumber(inc.latitud);
+        const lon = normalizeNumber(inc.longitud);
+        if (lat === null || lon === null) return;
 
-                    layerCameres.addLayer(camMarker);
-                });
-            } catch (e) { console.error("Error càmeres:", e); }
-        }
+        const via = inc.vvia || inc.via || 'Vía';
+        const desc = inc.descripcio || inc.tipus || 'Incidencia';
+        const popup = `
+          <div class="text-xs leading-relaxed">
+            <strong class="text-red-300">${escapeHtml(via)}</strong><br>
+            <span>${escapeHtml(desc)}</span>
+          </div>
+        `;
+        L.marker([lat, lon], { icon: icons.transit }).bindPopup(popup).addTo(layers.transit);
+        bounds.push([lat, lon]);
+      });
 
-        // 6. Panells Informatius
-        async function fetchPanells() {
-            try {
-                const data = await fetchWithProxy('https://analisi.transparenciacatalunya.cat/resource/6vvf-923f.json?$limit=100');
+      if (bounds.length && bounds.length < 80) {
+        // Ajuste moderado: evita saltos bruscos cuando hay demasiados puntos.
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 10 });
+      }
+    }
 
-                data.forEach(panell => {
-                    if(!panell.latitud || !panell.longitud) return;
+    function renderCameraMarkers() {
+      layers.cameras.clearLayers();
+      state.cameras.forEach(cam => {
+        const lat = normalizeNumber(cam.latitud);
+        const lon = normalizeNumber(cam.longitud);
+        if (lat === null || lon === null) return;
+        const id = cam.id_camara || cam.codi || cam.id || '';
+        const name = cam.nom_camara || cam.nom || 'Cámara SCT';
+        const url = id ? `https://cit.transit.gencat.cat/cit/AppJava/views/camara.xhtml?id=${encodeURIComponent(id)}` : '';
+        const popup = `
+          <div class="text-xs leading-relaxed">
+            <strong class="text-blue-300">${escapeHtml(name)}</strong><br>
+            ${url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="text-blue-300 underline">Abrir cámara oficial</a>` : '<span>Sin enlace disponible</span>'}
+          </div>
+        `;
+        L.marker([lat, lon], { icon: icons.camera }).bindPopup(popup).addTo(layers.cameras);
+      });
+    }
 
-                    const l1 = panell.text_linia_1 || '';
-                    const l2 = panell.text_linia_2 || '';
-                    const l3 = panell.text_linia_3 || '';
-                    
-                    if(!l1 && !l2) return; 
+    function renderPanelMarkers() {
+      layers.panels.clearLayers();
+      state.panels.forEach(panel => {
+        const lat = normalizeNumber(panel.latitud);
+        const lon = normalizeNumber(panel.longitud);
+        if (lat === null || lon === null) return;
 
-                    const panellMarker = L.marker([panell.latitud, panell.longitud]);
-                    panellMarker.bindPopup(`
-                        <div style="background-color:black; color:#fbbf24; font-family:monospace; padding:8px; border-radius:4px; text-align:center; font-size:11px;">
-                            ${l1}<br>${l2}<br>${l3}
-                        </div>
-                    `);
+        const lines = [panel.text_linia_1, panel.text_linia_2, panel.text_linia_3, panel.texto_linea_1, panel.texto_linea_2]
+          .filter(Boolean)
+          .map(escapeHtml);
+        if (!lines.length) return;
 
-                    layerPanells.addLayer(panellMarker);
-                });
-            } catch (e) { console.error("Error panells:", e); }
-        }
+        const popup = `
+          <div style="background:#000;color:#fbbf24;font-family:monospace;padding:9px;border-radius:6px;text-align:center;font-size:11px;line-height:1.45;min-width:180px;">
+            ${lines.join('<br>')}
+          </div>
+        `;
+        L.marker([lat, lon], { icon: icons.panel }).bindPopup(popup).addTo(layers.panels);
+      });
+    }
 
-        // --- EXECUCIÓ INICIAL ---
-        fetchTransit();
-        fetchTrenes();
-        fetchCameres();
-        fetchPanells();
+    async function loadTransit() {
+      setStatus(els.statusTransit, 'Cargando', 'warn');
+      try {
+        const data = await fetchJson(CONFIG.sources.transit);
+        state.transit = Array.isArray(data) ? data : [];
+        renderTransitMarkers();
+        setStatus(els.statusTransit, 'Operativo', 'ok');
+      } catch (error) {
+        console.error('Error tráfico:', error);
+        state.transit = [];
+        layers.transit.clearLayers();
+        els.transitList.innerHTML = '<div class="text-red-400 font-mono text-center py-6">Error de conexión con tráfico.</div>';
+        setStatus(els.statusTransit, 'Error', 'error');
+      }
+    }
 
-        // Refrescos automàtics cada 2 minuts
-        setInterval(fetchTransit, 120000);
-        setInterval(fetchTrenes, 120000);
-    </script>
+    async function loadTrains() {
+      setStatus(els.statusTrains, 'Cargando', 'warn');
+      try {
+        const data = await fetchJson(CONFIG.sources.trains);
+        state.trains = Array.isArray(data) ? data : [];
+        setStatus(els.statusTrains, 'Operativo', 'ok');
+      } catch (error) {
+        console.error('Error transporte:', error);
+        state.trains = [];
+        els.trainsList.innerHTML = '<div class="text-red-400 font-mono text-center py-6">Error de conexión con transporte.</div>';
+        setStatus(els.statusTrains, 'Error', 'error');
+      }
+    }
+
+    async function loadCameras() {
+      setStatus(els.statusCameras, 'Cargando', 'warn');
+      try {
+        const data = await fetchJson(CONFIG.sources.cameras);
+        state.cameras = Array.isArray(data) ? data : [];
+        renderCameraMarkers();
+        setStatus(els.statusCameras, 'Operativo', 'ok');
+      } catch (error) {
+        console.error('Error cámaras:', error);
+        state.cameras = [];
+        layers.cameras.clearLayers();
+        setStatus(els.statusCameras, 'Error', 'error');
+      }
+    }
+
+    async function loadPanels() {
+      setStatus(els.statusPanels, 'Cargando', 'warn');
+      try {
+        const data = await fetchJson(CONFIG.sources.panels);
+        state.panels = Array.isArray(data) ? data : [];
+        renderPanelMarkers();
+        setStatus(els.statusPanels, 'Operativo', 'ok');
+      } catch (error) {
+        console.error('Error paneles:', error);
+        state.panels = [];
+        layers.panels.clearLayers();
+        setStatus(els.statusPanels, 'Error', 'error');
+      }
+    }
+
+    async function refreshAll() {
+      if (state.loading) return;
+      state.loading = true;
+      els.btnRefresh.disabled = true;
+      els.btnRefresh.textContent = 'Actualizando...';
+
+      await Promise.allSettled([
+        loadTransit(),
+        loadTrains(),
+        loadCameras(),
+        loadPanels()
+      ]);
+
+      state.lastRefresh = new Date();
+      updateCounters();
+      renderLists();
+      els.btnRefresh.disabled = false;
+      els.btnRefresh.textContent = 'Actualizar ahora';
+      state.loading = false;
+    }
+
+    function syncLayerVisibility() {
+      els.layerTransit.checked ? map.addLayer(layers.transit) : map.removeLayer(layers.transit);
+      els.layerCameras.checked ? map.addLayer(layers.cameras) : map.removeLayer(layers.cameras);
+      els.layerPanels.checked ? map.addLayer(layers.panels) : map.removeLayer(layers.panels);
+    }
+
+    els.layerTransit.addEventListener('change', syncLayerVisibility);
+    els.layerCameras.addEventListener('change', syncLayerVisibility);
+    els.layerPanels.addEventListener('change', syncLayerVisibility);
+    els.btnRefresh.addEventListener('click', refreshAll);
+    els.globalSearch.addEventListener('input', renderLists);
+    els.searchTransit.addEventListener('input', renderLists);
+    els.searchTrains.addEventListener('input', renderLists);
+    els.btnClearSearch.addEventListener('click', () => {
+      els.globalSearch.value = '';
+      els.searchTransit.value = '';
+      els.searchTrains.value = '';
+      renderLists();
+    });
+
+    // Ejecución inicial y refresco automático.
+    syncLayerVisibility();
+    refreshAll();
+    setInterval(refreshAll, CONFIG.refreshMs);
+  </script>
 </body>
 </html>
