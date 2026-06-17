@@ -17,7 +17,7 @@
     .card{background:#020617;border:1px solid #1f2937;border-radius:14px}.btn{border:1px solid #334155;background:#0f172a;color:#e5e7eb;border-radius:10px;padding:7px 10px;font-size:12px;font-weight:800;transition:.15s}.btn:hover{border-color:#64748b;background:#172554}.chip{border:1px solid #334155;background:#0b1220;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:800;color:#cbd5e1}.status-dot{width:8px;height:8px;border-radius:999px;display:inline-block}.pulse{animation:pulse 1.5s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
     .marquee{white-space:nowrap;overflow:hidden}.marquee span{display:inline-block;padding-left:100%;animation:marquee 34s linear infinite}@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
     .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#f8fafc;color:#0f172a}.leaflet-control-attribution{background:rgba(2,6,23,.75)!important;color:#cbd5e1!important}.leaflet-control-attribution a{color:#93c5fd!important}
-    .source-tile{display:flex;gap:10px;padding:10px;border-radius:12px;border:1px solid #1f2937;background:#030712}.source-tile:hover{border-color:#475569;background:#0b1220}.x-tile{display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:12px;border:1px solid #1e293b;background:linear-gradient(180deg,#020617,#0f172a)}.x-tile:hover{border-color:#38bdf8}.kpi{background:linear-gradient(180deg,#0f172a,#020617);border:1px solid #1f2937;border-radius:16px;padding:12px}.badge-red{background:#450a0a;color:#fecaca;border:1px solid #7f1d1d}.badge-amber{background:#451a03;color:#fde68a;border:1px solid #92400e}.badge-green{background:#052e16;color:#bbf7d0;border:1px solid #166534}.badge-blue{background:#082f49;color:#bae6fd;border:1px solid #075985}.badge-violet{background:#2e1065;color:#ddd6fe;border:1px solid #6d28d9}.badge-slate{background:#0f172a;color:#cbd5e1;border:1px solid #334155}
+    .source-tile{display:flex;gap:10px;padding:10px;border-radius:12px;border:1px solid #1f2937;background:#030712}.source-tile:hover{border-color:#475569;background:#0b1220}.x-tile{display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:12px;border:1px solid #1e293b;background:linear-gradient(180deg,#020617,#0f172a)}.x-tile:hover{border-color:#38bdf8}.kpi{background:linear-gradient(180deg,#0f172a,#020617);border:1px solid #1f2937;border-radius:16px;padding:12px}.ctrl{width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:7px 9px;font-size:12px;color:#e5e7eb;outline:none}.ctrl:focus{border-color:#38bdf8}.mini-table{width:100%;border-collapse:collapse}.mini-table th,.mini-table td{border-bottom:1px solid #1f2937;padding:7px 5px;text-align:left}.mini-table th{font-size:10px;text-transform:uppercase;color:#94a3b8}.mini-table td{font-size:11px;color:#d1d5db}.badge-red{background:#450a0a;color:#fecaca;border:1px solid #7f1d1d}.badge-amber{background:#451a03;color:#fde68a;border:1px solid #92400e}.badge-green{background:#052e16;color:#bbf7d0;border:1px solid #166534}.badge-blue{background:#082f49;color:#bae6fd;border:1px solid #075985}.badge-violet{background:#2e1065;color:#ddd6fe;border:1px solid #6d28d9}.badge-slate{background:#0f172a;color:#cbd5e1;border:1px solid #334155}
     @media(max-width:1280px){body{overflow:auto}#map{height:540px}.app-grid{grid-template-columns:1fr!important;height:auto!important}.right-col,.left-col{height:auto!important;max-height:none!important}}
   </style>
 </head>
@@ -50,6 +50,7 @@
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Cámaras</div><div id="kpiCams" class="text-2xl font-black text-sky-400">--</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Paneles</div><div id="kpiPanels" class="text-2xl font-black text-yellow-400">--</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Canales X</div><div id="kpiX" class="text-2xl font-black text-sky-400">--</div></div>
+    <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Fuentes</div><div id="kpiSources" class="text-2xl font-black text-violet-400">--</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Última carga</div><div id="kpiUpdated" class="text-sm font-black text-green-400 mt-1">--</div></div>
     <div class="kpi col-span-2"><div class="text-[10px] text-gray-500 uppercase font-black">Búsqueda global</div><input id="searchBox" class="w-full mt-1 bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-xs outline-none focus:border-sky-500" placeholder="Municipio, vía, línea, fuente..." /></div>
   </section>
@@ -66,14 +67,43 @@
         <label class="chip cursor-pointer"><input type="checkbox" id="toggleCams" class="mr-1"> Cámaras</label>
         <label class="chip cursor-pointer"><input type="checkbox" id="togglePanels" checked class="mr-1"> Paneles</label>
       </div>
+      <div id="citPanel" class="card p-3 mb-3 text-xs space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <div class="font-black text-red-300 uppercase tracking-widest">CIT/SCT integrado</div>
+            <div id="citSummary" class="text-[10px] text-gray-500 font-mono">Cargando afectaciones abiertas...</div>
+          </div>
+          <button id="resetCitFilters" class="text-[10px] text-sky-400 font-black">Limpiar</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <select id="citType" class="ctrl">
+            <option value="all">Todos los tipos</option>
+            <option value="retencions">Retenciones / congestión</option>
+            <option value="tall">Vía cortada / accidente</option>
+            <option value="obres">Obras</option>
+            <option value="meteorologia">Meteorología</option>
+            <option value="mesures">Medidas especiales</option>
+            <option value="info">Información</option>
+          </select>
+          <select id="citSort" class="ctrl">
+            <option value="severity">Orden: severidad</option>
+            <option value="road">Orden: carretera</option>
+            <option value="area">Orden: comarca/tramo</option>
+            <option value="type">Orden: tipo</option>
+          </select>
+          <input id="citRoad" class="ctrl" placeholder="Filtrar vía: AP-7, C-32..." />
+          <input id="citArea" class="ctrl" placeholder="Comarca, población o tramo" />
+        </div>
+        <label class="chip cursor-pointer inline-flex items-center"><input type="checkbox" id="citOnlyGeo" class="mr-1"> Solo con coordenadas</label>
+      </div>
       <div id="incidentList" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs"></div>
     </aside>
 
     <section class="xl:col-span-6 glass rounded-2xl p-2 flex flex-col min-h-0">
       <div id="map" class="rounded-xl overflow-hidden border border-gray-800"></div>
       <div class="grid md:grid-cols-4 gap-2 mt-2 text-xs">
-        <a class="btn text-center" target="_blank" rel="noopener" href="https://mct.gencat.cat/">MCT oficial SCT</a>
-        <a class="btn text-center" target="_blank" rel="noopener" href="https://cit.transit.gencat.cat/">Incidencias SCT</a>
+        <button id="openCitBtn" class="btn text-center">CIT Incidencias integrado</button>
+        <button id="toggleCitPanelBtn" class="btn text-center">Filtros CIT/SCT</button>
         <button id="openXHubBtn" class="btn text-center">Canales X críticos</button>
         <a class="btn text-center" target="_blank" rel="noopener" href="https://www.aena.es/es/infovuelos.html">AENA Infovuelos</a>
       </div>
@@ -130,7 +160,7 @@
       {name:'Mossos d’Esquadra', type:'emergencia', icon:'👮', priority:'Alta', status:'web/xarxes', url:'https://mossos.gencat.cat/', social:'https://x.com/mossos', desc:'Seguridad ciudadana, avisos policiales, tráfico y prevención.'},
       {name:'Agents Rurals', type:'emergencia', icon:'🌲', priority:'Alta', status:'web/xarxes', url:'https://interior.gencat.cat/ca/arees_dactuacio/agents-rurals/', social:'https://x.com/agentsruralscat', desc:'Medio natural, prevención de incendios, Pla Alfa y restricciones en espacios forestales.'},
       {name:'Mapa Continu de Trànsit MCT', type:'transporte', icon:'🗺️', priority:'Crítica', status:'visor oficial', url:'https://mct.gencat.cat/', live:'https://transit.gencat.cat/ca/informacio-viaria/estat-transit/mapa-continu-mct/', social:'https://x.com/transit', desc:'Visor oficial del Servei Català de Trànsit basado en Google Maps: incidencias en tiempo real, densidad, cámaras, paneles, restricciones, meteorología, tramos de obras y XIMP.'},
-      {name:'Servei Català de Trànsit - dades obertes', type:'transporte', icon:'🚗', priority:'Crítica', status:'datos abiertos', url:'https://cit.transit.gencat.cat/', live:'https://analisi.transparenciacatalunya.cat/', social:'https://x.com/transit', desc:'Datos abiertos del SCT que esta página intenta cargar directamente: incidencias viarias, cámaras de tráfico y paneles informativos.'},
+      {name:'Servei Català de Trànsit - dades obertes', type:'transporte', icon:'🚗', priority:'Crítica', status:'datos abiertos', url:'https://cit.transit.gencat.cat/', live:'https://analisi.transparenciacatalunya.cat/', social:'https://x.com/transit', desc:'Datos abiertos del SCT que esta página carga directamente dentro del panel: incidencias viarias, cámaras de tráfico y paneles informativos.'},
       {name:'Rodalies Catalunya', type:'transporte', icon:'🚆', priority:'Alta', status:'web/datos', url:'https://rodalies.gencat.cat/ca/alteracions_del_servei/', social:'https://x.com/rodalies', desc:'Estado del servicio, alteraciones, demoras y planes alternativos.'},
       {name:'Adif', type:'transporte', icon:'🛤️', priority:'Alta', status:'web', url:'https://www.adif.es/viajeros/estado-de-la-red', social:'https://x.com/Adif_es', desc:'Estado de la red ferroviaria e incidencias de infraestructura.'},
       {name:'Renfe', type:'transporte', icon:'🚄', priority:'Alta', status:'web/xarxes', url:'https://www.renfe.com/es/es/ayuda/estado-del-servicio', social:'https://x.com/Renfe', desc:'Estado del servicio ferroviario y comunicaciones de operador.'},
@@ -151,7 +181,7 @@
 
     const X_SEARCH_TERMS = encodeURIComponent('(from:interiorcat OR from:mossos OR from:emergenciescat OR from:bomberscat OR from:semgencat) (emergència OR emergencia OR afectacions OR afectación OR tall OR confinament OR evacuació OR incendi OR accident OR alerta OR activat OR risc OR trànsit OR 112 OR 061)');
 
-    const state = {traffic:[], rail:[], cams:[], panels:[], sourceFilter:'all', markers:{traffic:L.layerGroup(), cams:L.layerGroup(), panels:L.layerGroup()}, allIncidents:[]};
+    const state = {traffic:[], rail:[], cams:[], panels:[], sourceFilter:'all', markers:{traffic:L.layerGroup(), cams:L.layerGroup(), panels:L.layerGroup()}, allIncidents:[], cit:{type:'all', sort:'severity', road:'', area:'', onlyGeo:false}};
 
     const $ = id => document.getElementById(id);
     const safe = v => String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -195,21 +225,59 @@
 
     function incidentCard(item){
       const [sev,badge]=severity(item.searchText);
+      const meta=[item.road, item.km, item.direction, item.area].filter(Boolean).join(' · ');
       return `<div class="card p-3 hover:border-gray-600 transition cursor-pointer incident-card" data-search="${safe(item.searchText)}" data-lat="${safe(item.lat||'')}" data-lon="${safe(item.lon||'')}">
         <div class="flex justify-between gap-2 items-start mb-1"><span class="text-[10px] px-2 py-0.5 rounded-full ${badge} font-black">${sev}</span><span class="text-[10px] text-gray-500 font-mono">${safe(item.source)}</span></div>
         <div class="font-black text-gray-100 text-[12px] leading-snug">${safe(item.title)}</div>
-        <p class="text-gray-400 text-[11px] leading-relaxed mt-1">${safe(item.desc).slice(0,260)}</p>
-        ${item.url?`<a target="_blank" rel="noopener" class="text-sky-400 text-[11px] font-bold mt-2 inline-block" href="${safe(item.url)}">Abrir fuente oficial →</a>`:''}
+        ${meta?`<div class="text-[10px] text-sky-300 font-mono mt-1">${safe(meta)}</div>`:''}
+        <p class="text-gray-400 text-[11px] leading-relaxed mt-1">${safe(item.desc).slice(0,320)}</p>
+        <div class="text-[10px] text-gray-500 mt-2">Integrado en el panel · clic para centrar en el mapa si tiene coordenadas</div>
       </div>`;
     }
 
+    function incidentRank(item){
+      const t=(item.searchText||'').toLowerCase();
+      if(/tall|tallada|accident|incendi|aturat|interromp/.test(t)) return 0;
+      if(/retenci|congest|dens|restric|afectaci/.test(t)) return 1;
+      if(/obres|meteorolog|boira|neu|pluja|vent/.test(t)) return 2;
+      return 3;
+    }
+    function citTypeOf(item){
+      const t=(item.searchText||'').toLowerCase();
+      if(/tall|tallada|accident|incendi|aturat|interromp/.test(t)) return 'tall';
+      if(/retenci|congest|dens/.test(t)) return 'retencions';
+      if(/obra|obres/.test(t)) return 'obres';
+      if(/meteo|meteorolog|boira|neu|pluja|vent|gel/.test(t)) return 'meteorologia';
+      if(/mesura|restric|especial|carril|sentit contrari/.test(t)) return 'mesures';
+      return 'info';
+    }
     function renderIncidents(){
       const q=$('searchBox').value.trim().toLowerCase();
-      const list=state.allIncidents.filter(i=>!q || i.searchText.toLowerCase().includes(q));
+      const road=(state.cit.road||'').toLowerCase();
+      const area=(state.cit.area||'').toLowerCase();
+      let list=state.allIncidents.filter(i=>{
+        const text=(i.searchText||'').toLowerCase();
+        if(q && !text.includes(q)) return false;
+        if(i.type==='traffic'){
+          if(state.cit.type!=='all' && citTypeOf(i)!==state.cit.type) return false;
+          if(road && !String(i.road||'').toLowerCase().includes(road)) return false;
+          if(area && ![i.area,i.tram,i.desc,i.title].join(' ').toLowerCase().includes(area)) return false;
+          if(state.cit.onlyGeo && !(i.lat && i.lon)) return false;
+        }
+        return true;
+      });
+      list.sort((a,b)=>{
+        if(state.cit.sort==='road') return String(a.road||a.title).localeCompare(String(b.road||b.title));
+        if(state.cit.sort==='area') return String(a.area||a.tram||'').localeCompare(String(b.area||b.tram||''));
+        if(state.cit.sort==='type') return citTypeOf(a).localeCompare(citTypeOf(b));
+        return incidentRank(a)-incidentRank(b);
+      });
       $('incidentList').innerHTML=list.length?list.map(incidentCard).join(''):'<div class="text-center text-gray-500 py-8 font-mono">Sin resultados para el filtro actual.</div>';
       document.querySelectorAll('.incident-card').forEach(el=>{
         el.onclick=()=>{const lat=num(el.dataset.lat), lon=num(el.dataset.lon); if(lat&&lon) map.setView([lat,lon],14);};
       });
+      const trafficCount=list.filter(i=>i.type==='traffic').length;
+      if($('citSummary')) $('citSummary').textContent=`${trafficCount} afectaciones SCT/CIT filtradas · ${state.traffic.length} cargadas`;
       const top=list.slice(0,4).map(i=>`${i.source}: ${i.title}`).join('  |  ');
       $('ticker').textContent=top || 'Sin incidencias cargadas. Consulta canales oficiales ante cualquier emergencia.';
     }
@@ -260,8 +328,18 @@
       $('kpiPanels').textContent=state.panels.length;
     }
 
+    function trafficItemFrom(inc){
+      const road=inc.vvia||inc.via||inc.carretera||'Vía';
+      const km=[inc.ptini, inc.ptfi].filter(Boolean).join('-');
+      const area=inc.comarca||inc.demarcacio||inc.demarcaci||inc.poblacio||'';
+      const tram=inc.tram||inc.descripcio_tram||inc.descripcio||'';
+      const direction=inc.sentit||inc.cap_a||inc.cap||'';
+      const title=`${road}${km?` km ${km}`:''}`;
+      const desc=[inc.tipus||inc.causa||'Incidencia', inc.nivell_afectacio||inc.nivell||'', inc.descripcio||inc.observacions||''].filter(Boolean).join(' · ');
+      return {source:'SCT/CIT Tráfico', type:'traffic', title, desc, road, km, area, tram, direction, lat:inc.latitud, lon:inc.longitud, searchText:[road,km,area,tram,direction,inc.tipus,inc.causa,inc.nivell_afectacio,inc.descripcio,inc.observacions,'sct cit carretera tráfico transit retencions obres meteorologia mesures'].join(' ')};
+    }
     function rebuildIncidentDataset(){
-      const trafficItems=state.traffic.map(inc=>({source:'SCT Tráfico', title:`${inc.vvia||'Vía'} ${inc.ptini?`km ${inc.ptini}`:''}`, desc:`${inc.tipus||'Incidencia'} · ${inc.descripcio||''}`, lat:inc.latitud, lon:inc.longitud, url:'https://cit.transit.gencat.cat/', searchText:[inc.vvia,inc.ptini,inc.tipus,inc.descripcio,'sct carretera tráfico transit'].join(' ')}));
+      const trafficItems=state.traffic.map(trafficItemFrom);
       state.allIncidents=[...trafficItems,...state.rail];
       renderIncidents();
     }
@@ -335,6 +413,24 @@
       sourceModal.showModal();
     }
 
+    function openCitIntegrated(){
+      const rows=state.traffic.map(trafficItemFrom).sort((a,b)=>incidentRank(a)-incidentRank(b));
+      $('modalTitle').textContent='🚦 CIT/SCT Incidencias viarias integrado';
+      $('modalSubtitle').textContent='Afectaciones abiertas · filtros equivalentes dentro del centro de control';
+      const byType=rows.reduce((acc,r)=>{const k=citTypeOf(r); acc[k]=(acc[k]||0)+1; return acc;},{});
+      $('modalBody').innerHTML=`<div class="space-y-3">
+        <div class="card p-3 text-xs text-sky-100"><b>Integración interna:</b> este módulo replica en el centro de control la lista operativa de afectaciones abiertas del CIT/SCT usando el dataset oficial de incidencias viarias que ya carga el mapa. No abre una ventana externa ni depende de enlaces para consultar la información básica.</div>
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-2 text-center">
+          ${['tall','retencions','obres','meteorologia','mesures','info'].map(k=>`<div class="kpi"><div class="text-[10px] uppercase text-gray-500 font-black">${k}</div><div class="text-lg font-black">${byType[k]||0}</div></div>`).join('')}
+        </div>
+        <div class="overflow-auto card p-2"><table class="mini-table"><thead><tr><th>Tipo</th><th>Vía</th><th>Km</th><th>Área/tramo</th><th>Detalle</th></tr></thead><tbody>
+          ${rows.slice(0,120).map(r=>`<tr><td>${safe(citTypeOf(r))}</td><td class="font-black text-red-200">${safe(r.road)}</td><td>${safe(r.km||'-')}</td><td>${safe(r.area||r.tram||'-')}</td><td>${safe(r.desc).slice(0,180)}</td></tr>`).join('') || '<tr><td colspan="5">No hay incidencias cargadas.</td></tr>'}
+        </tbody></table></div>
+        <div class="card p-3 text-xs text-amber-100"><b>Nota técnica:</b> la página original incidents.xhtml del CIT es una aplicación web con formularios y carga dinámica. En un HTML estático de GitHub Pages no se puede copiar su aplicación interna completa si el servidor bloquea lectura cruzada o cambia sus scripts. Por eso aquí queda implementada la función útil: listado, filtros, ordenación, mapa y actualización automática con datos oficiales abiertos.</div>
+      </div>`;
+      sourceModal.showModal();
+    }
+
     function applyLayerVisibility(){
       $('toggleTraffic').checked ? map.addLayer(state.markers.traffic) : map.removeLayer(state.markers.traffic);
       $('toggleCams').checked ? map.addLayer(state.markers.cams) : map.removeLayer(state.markers.cams);
@@ -354,14 +450,17 @@
     }
 
     $('refreshBtn').onclick=refreshAll; $('fitBtn').onclick=()=>map.fitBounds(CONFIG.catalunyaBounds);
+    if($('openCitBtn')) $('openCitBtn').onclick=openCitIntegrated;
+    if($('toggleCitPanelBtn')) $('toggleCitPanelBtn').onclick=()=>{$('citPanel').classList.toggle('hidden');};
     ['toggleTraffic','toggleCams','togglePanels'].forEach(id=>$(id).addEventListener('change',applyLayerVisibility));
     $('toggleRail').addEventListener('change',()=>{ rebuildIncidentDataset(); });
     $('searchBox').addEventListener('input',()=>{renderIncidents(); renderSources();});
+    ['citType','citSort','citRoad','citArea','citOnlyGeo'].forEach(id=>$(id).addEventListener(id==='citRoad'||id==='citArea'?'input':'change',()=>{state.cit.type=$('citType').value; state.cit.sort=$('citSort').value; state.cit.road=$('citRoad').value; state.cit.area=$('citArea').value; state.cit.onlyGeo=$('citOnlyGeo').checked; renderIncidents();}));
+    $('resetCitFilters').onclick=()=>{$('citType').value='all'; $('citSort').value='severity'; $('citRoad').value=''; $('citArea').value=''; $('citOnlyGeo').checked=false; state.cit={type:'all', sort:'severity', road:'', area:'', onlyGeo:false}; renderIncidents();};
     document.querySelectorAll('.sourceFilter').forEach(btn=>btn.onclick=()=>{state.sourceFilter=btn.dataset.filter; renderSources();});
 
-    const originalRebuild = rebuildIncidentDataset;
     rebuildIncidentDataset = function(){
-      const trafficItems=state.traffic.map(inc=>({source:'SCT Tráfico', title:`${inc.vvia||'Vía'} ${inc.ptini?`km ${inc.ptini}`:''}`, desc:`${inc.tipus||'Incidencia'} · ${inc.descripcio||''}`, lat:inc.latitud, lon:inc.longitud, url:'https://cit.transit.gencat.cat/', searchText:[inc.vvia,inc.ptini,inc.tipus,inc.descripcio,'sct carretera tráfico transit'].join(' ')}));
+      const trafficItems=state.traffic.map(trafficItemFrom);
       state.allIncidents=[...trafficItems, ...($('toggleRail').checked?state.rail:[])];
       renderIncidents();
     };
