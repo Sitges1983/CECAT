@@ -10,16 +10,15 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     :root{--bg:#020617;--panel:#0f172a;--panel2:#111827;--line:#1f2937;--muted:#94a3b8;--red:#ef4444;--amber:#f59e0b;--blue:#38bdf8;--green:#22c55e;--violet:#a78bfa}
-    html,body{height:100%}body{background:var(--bg);color:#e5e7eb;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
-    #map{height:calc(100vh - 560px);min-height:330px;background:#0b1220}
-    .meteo-frame{width:100%;border:0;border-radius:12px;background:#020617}.meteo-scroll{max-height:420px;overflow:auto}.meteo-card{background:#020617;border:1px solid #1f2937;border-radius:14px;padding:10px}.meteo-card iframe{display:block;margin:0 auto;max-width:100%}
+    html,body{min-height:100%}body{background:var(--bg);color:#e5e7eb;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden;overflow-y:auto}
+    #map{height:62vh;min-height:560px;background:#0b1220}
     ::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-track{background:#0b1220}::-webkit-scrollbar-thumb{background:#334155;border-radius:999px}::-webkit-scrollbar-thumb:hover{background:#475569}
     .glass{background:rgba(15,23,42,.94);border:1px solid rgba(55,65,81,.85);box-shadow:0 12px 40px rgba(0,0,0,.35)}
     .card{background:#020617;border:1px solid #1f2937;border-radius:14px}.btn{border:1px solid #334155;background:#0f172a;color:#e5e7eb;border-radius:10px;padding:7px 10px;font-size:12px;font-weight:800;transition:.15s}.btn:hover{border-color:#64748b;background:#172554}.chip{border:1px solid #334155;background:#0b1220;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:800;color:#cbd5e1}.status-dot{width:8px;height:8px;border-radius:999px;display:inline-block}.pulse{animation:pulse 1.5s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
     .marquee{white-space:nowrap;overflow:hidden}.marquee span{display:inline-block;padding-left:100%;animation:marquee 34s linear infinite}@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
     .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#f8fafc;color:#0f172a}.leaflet-control-attribution{background:rgba(2,6,23,.75)!important;color:#cbd5e1!important}.leaflet-control-attribution a{color:#93c5fd!important}
     .source-tile{display:flex;gap:10px;padding:10px;border-radius:12px;border:1px solid #1f2937;background:#030712}.source-tile:hover{border-color:#475569;background:#0b1220}.x-tile{display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:12px;border:1px solid #1e293b;background:linear-gradient(180deg,#020617,#0f172a)}.x-tile:hover{border-color:#38bdf8}.kpi{background:linear-gradient(180deg,#0f172a,#020617);border:1px solid #1f2937;border-radius:16px;padding:12px}.ctrl{width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:7px 9px;font-size:12px;color:#e5e7eb;outline:none}.ctrl:focus{border-color:#38bdf8}.mini-table{width:100%;border-collapse:collapse}.mini-table th,.mini-table td{border-bottom:1px solid #1f2937;padding:7px 5px;text-align:left}.mini-table th{font-size:10px;text-transform:uppercase;color:#94a3b8}.mini-table td{font-size:11px;color:#d1d5db}.badge-red{background:#450a0a;color:#fecaca;border:1px solid #7f1d1d}.badge-amber{background:#451a03;color:#fde68a;border:1px solid #92400e}.badge-green{background:#052e16;color:#bbf7d0;border:1px solid #166534}.badge-blue{background:#082f49;color:#bae6fd;border:1px solid #075985}.badge-violet{background:#2e1065;color:#ddd6fe;border:1px solid #6d28d9}.badge-slate{background:#0f172a;color:#cbd5e1;border:1px solid #334155}
-    @media(max-width:1280px){body{overflow:auto}#map{height:540px}.app-grid{grid-template-columns:1fr!important;height:auto!important}.right-col,.left-col{height:auto!important;max-height:none!important}}
+    .map-control-btn.active,.sourceFilter.active,.flight-btn.active{border-color:#38bdf8;background:#0c4a6e;color:#fff}.left-col,.right-col{max-height:calc(100vh - 190px);position:sticky;top:12px}.center-col{min-width:0}.meteo-scroll{max-height:none;overflow:visible}.meteo-card{background:#020617;border:1px solid #1f2937;border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center}.meteo-card.primary{border-color:#155e75;background:linear-gradient(180deg,#082f49,#020617)}.meteo-frame{max-width:100%;border-radius:12px;background:#0b1220}.meteo-radar-frame{width:100%;height:560px}.meteo-small-frame{width:100%;height:430px}.flight-card{background:#020617;border:1px solid #1f2937;border-radius:14px;overflow:hidden}.flight-frame{width:100%;height:520px;border:0;background:#0b1220}.cam-popup-frame{width:360px;height:270px;border:0;border-radius:8px;background:#111827}.map-legend{position:absolute;z-index:500;right:14px;bottom:14px;background:rgba(2,6,23,.88);border:1px solid #334155;border-radius:12px;padding:8px 10px;font-size:11px;color:#cbd5e1;backdrop-filter:blur(6px)}@media(max-width:1280px){#map{height:540px}.app-grid{grid-template-columns:1fr!important;height:auto!important}.right-col,.left-col{height:auto!important;max-height:none!important;position:static}.meteo-radar-frame{height:520px}.flight-frame{height:480px}}@media(max-width:720px){#map{height:460px;min-height:460px}.meteo-radar-frame,.meteo-small-frame,.flight-frame{height:420px}.cam-popup-frame{width:280px;height:220px}}
   </style>
 </head>
 <body>
@@ -45,19 +44,18 @@
     <div class="marquee text-xs text-amber-200 font-mono"><span id="ticker">Sistema cargando. En caso de emergencia real llama al 112 y consulta siempre los canales oficiales.</span></div>
   </section>
 
-  <section class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-9 gap-2 p-4 pb-0">
+  <section class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-2 p-4 pb-0">
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Tráfico</div><div id="kpiTraffic" class="text-2xl font-black text-red-400">--</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Trenes</div><div id="kpiRail" class="text-2xl font-black text-orange-400">--</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Cámaras</div><div id="kpiCams" class="text-2xl font-black text-sky-400">--</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Paneles</div><div id="kpiPanels" class="text-2xl font-black text-yellow-400">--</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Canales X</div><div id="kpiX" class="text-2xl font-black text-sky-400">--</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Fuentes</div><div id="kpiSources" class="text-2xl font-black text-violet-400">--</div></div>
-    <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Meteo</div><div id="kpiMeteo" class="text-2xl font-black text-cyan-300">3</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Última carga</div><div id="kpiUpdated" class="text-sm font-black text-green-400 mt-1">--</div></div>
     <div class="kpi col-span-2"><div class="text-[10px] text-gray-500 uppercase font-black">Búsqueda global</div><input id="searchBox" class="w-full mt-1 bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-xs outline-none focus:border-sky-500" placeholder="Municipio, vía, línea, fuente..." /></div>
   </section>
 
-  <main class="app-grid grid grid-cols-1 xl:grid-cols-12 gap-4 p-4 h-[calc(100vh-166px)]">
+  <main class="app-grid grid grid-cols-1 xl:grid-cols-12 gap-4 p-4 items-start">
     <aside class="left-col xl:col-span-3 glass rounded-2xl p-3 flex flex-col min-h-0">
       <div class="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
         <h2 class="text-sm font-black uppercase tracking-widest text-red-400">⚠️ Incidencias operativas</h2>
@@ -101,36 +99,82 @@
       <div id="incidentList" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs"></div>
     </aside>
 
-    <section class="xl:col-span-6 glass rounded-2xl p-2 flex flex-col min-h-0 overflow-hidden">
-      <div id="map" class="rounded-xl overflow-hidden border border-gray-800 shrink-0"></div>
-      <div class="grid md:grid-cols-4 gap-2 mt-2 text-xs shrink-0">
+    <section class="center-col xl:col-span-6 glass rounded-2xl p-2 flex flex-col min-h-0">
+      <div class="relative">
+        <div id="map" class="rounded-xl overflow-hidden border border-gray-800"></div>
+        <div class="map-legend">
+          <div class="font-black text-sky-200 mb-1">Capas visibles</div>
+          <div>🔴 Incidencias SCT · 🔵 Cámaras · 🟡 Paneles</div>
+          <div>⛈️ Meteorología: widgets Meteocat debajo</div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-2 mt-2 text-xs">
+        <button class="btn map-control-btn active" data-map-action="traffic-all">🚦 Todo tráfico</button>
+        <button class="btn map-control-btn" data-map-action="retencions">🔴 Retenciones</button>
+        <button class="btn map-control-btn" data-map-action="tall">🚨 Accidentes/cortes</button>
+        <button class="btn map-control-btn" data-map-action="obres">🚧 Obras</button>
+        <button class="btn map-control-btn" data-map-action="meteorologia">⛈️ Meteo carretera</button>
+        <button class="btn map-control-btn" data-map-action="cams">📹 Cámaras SCT</button>
+        <button class="btn map-control-btn" data-map-action="panels">📟 Paneles SCT</button>
+        <button class="btn map-control-btn" data-map-action="rail">🚆 Trenes</button>
+        <button class="btn map-control-btn" data-map-action="meteo-widgets">🌦️ Meteocat</button>
+        <button id="fitTrafficBtn" class="btn text-center">⌖ Ajustar mapa</button>
+      </div>
+      <div id="mapStatus" class="card p-2 mt-2 text-[11px] text-gray-300 font-mono">Mapa listo. Selecciona una capa para ver las afectaciones ubicadas.</div>
+      <div class="grid md:grid-cols-4 gap-2 mt-2 text-xs">
         <button id="openCitBtn" class="btn text-center">CIT Incidencias integrado</button>
         <button id="toggleCitPanelBtn" class="btn text-center">Filtros CIT/SCT</button>
         <button id="openXHubBtn" class="btn text-center">Canales X críticos</button>
-        <button id="focusMeteoBtn" class="btn text-center">Meteocat integrado</button>
+        <a class="btn text-center" target="_blank" rel="noopener" href="https://www.aena.es/es/infovuelos.html">AENA Infovuelos</a>
       </div>
-
       <section id="meteoCentral" class="mt-2 card p-3 flex-1 min-h-0 overflow-hidden">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-gray-800 pb-2 mb-3">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-800 pb-2 mb-3">
           <div>
             <h2 class="text-sm font-black uppercase tracking-widest text-cyan-300">🌦️ Meteorología oficial Meteocat</h2>
             <p class="text-[10px] text-gray-500 font-mono">Predicción · radar · avisos meteorológicos integrados mediante ginys oficiales</p>
           </div>
           <span class="chip"><span class="status-dot bg-cyan-300"></span> Meteocat</span>
         </div>
-        <div class="meteo-scroll grid xl:grid-cols-3 gap-3 pr-1">
-          <article class="meteo-card">
-            <div class="font-black text-xs text-cyan-200 uppercase tracking-widest mb-2">Predicción general</div>
-            <iframe class="meteo-frame" src="https://static-m.meteo.cat/ginys/mapaPrediccio?language=ca&amp;color=2c3e50&amp;target=_blank" title="Predicció general de Catalunya" frameborder="0" scrolling="no" width="565" height="388" loading="lazy"></iframe>
+        <div class="meteo-scroll space-y-3 pr-1">
+          <article class="meteo-card primary">
+            <h3 class="text-sm font-black text-cyan-100 mb-2 uppercase">Radar Meteocat · Última imagen</h3>
+            <iframe class="meteo-frame meteo-radar-frame" src="https://static-m.meteo.cat/ginys/mapaRadar?language=ca&amp;color=2c3e50&amp;target=_blank" title="Última imatge de radar" frameborder="0" scrolling="no" loading="lazy"></iframe>
           </article>
-          <article class="meteo-card">
-            <div class="font-black text-xs text-cyan-200 uppercase tracking-widest mb-2">Radar lluvia</div>
-            <iframe class="meteo-frame" src="https://static-m.meteo.cat/ginys/mapaRadar?language=ca&amp;color=2c3e50&amp;target=_blank" title="Última imatge de radar" frameborder="0" scrolling="no" width="396" height="412" loading="lazy"></iframe>
-          </article>
-          <article class="meteo-card">
-            <div class="font-black text-xs text-cyan-200 uppercase tracking-widest mb-2">Mapa de avisos</div>
-            <iframe class="meteo-frame" src="https://static-m.meteo.cat/ginys/mapaAvisos?language=ca&amp;color=2c3e50&amp;target=_blank" title="Mapa d'avisos" frameborder="0" scrolling="no" width="297" height="525" loading="lazy"></iframe>
-          </article>
+          <div class="grid lg:grid-cols-2 gap-3 items-start">
+            <article class="meteo-card">
+              <h3 class="text-xs font-black text-cyan-200 mb-2 uppercase text-center">Predicción general de Catalunya</h3>
+              <iframe class="meteo-frame meteo-small-frame" src="https://static-m.meteo.cat/ginys/mapaPrediccio?language=ca&amp;color=2c3e50&amp;target=_blank" title="Predicció general de Catalunya" frameborder="0" scrolling="no" loading="lazy"></iframe>
+            </article>
+            <article class="meteo-card">
+              <h3 class="text-xs font-black text-cyan-200 mb-2 uppercase text-center">Mapa de avisos Meteocat</h3>
+              <iframe class="meteo-frame meteo-small-frame" src="https://static-m.meteo.cat/ginys/mapaAvisos?language=ca&amp;color=2c3e50&amp;target=_blank" title="Mapa d'avisos" frameborder="0" scrolling="no" loading="lazy"></iframe>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="flightRadarCentral" class="mt-2 card p-3 flex-1 min-h-0 overflow-hidden">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-800 pb-2 mb-3">
+          <div>
+            <h2 class="text-sm font-black uppercase tracking-widest text-blue-300">✈️ Tráfico aéreo en vivo · Flightradar24</h2>
+            <p class="text-[10px] text-gray-500 font-mono">Mapa integrado sobre Catalunya · autoactualización cada 60 segundos · útil para afectaciones aéreas y operativa aeroportuaria</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="flightRadarStatus" class="chip"><span class="status-dot bg-blue-300 pulse"></span> Inicializando</span>
+            <button id="refreshFlightBtn" class="btn">↻ Refrescar aéreo</button>
+          </div>
+        </div>
+        <div class="grid md:grid-cols-4 gap-2 mb-3 text-xs">
+          <button class="btn flight-btn active" data-fr24="cat">Catalunya</button>
+          <button class="btn flight-btn" data-fr24="bcn">BCN-El Prat</button>
+          <button class="btn flight-btn" data-fr24="gro">Girona</button>
+          <button class="btn flight-btn" data-fr24="reu">Reus</button>
+        </div>
+        <div class="flight-card">
+          <iframe id="flightRadarFrame" class="flight-frame" title="Flightradar24 Catalunya integrado" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allow="fullscreen"></iframe>
+        </div>
+        <div class="card p-3 mt-3 text-[11px] text-amber-100 leading-relaxed">
+          <b>Nota técnica:</b> este visor usa el modo de mapa embebible de Flightradar24 y se recarga automáticamente cada minuto desde la propia página. Si Flightradar24 cambia su política de iframe, exige sesión o bloquea la carga por navegador, el bloque puede mostrar una pantalla de bloqueo aunque el resto del centro seguirá funcionando. Para datos aeronáuticos API completos haría falta backend/API comercial.
         </div>
       </section>
     </section>
@@ -192,6 +236,7 @@
       {name:'Renfe', type:'transporte', icon:'🚄', priority:'Alta', status:'web/xarxes', url:'https://www.renfe.com/es/es/ayuda/estado-del-servicio', social:'https://x.com/Renfe', desc:'Estado del servicio ferroviario y comunicaciones de operador.'},
       {name:'AENA Infovuelos', type:'transporte', icon:'✈️', priority:'Alta', status:'web', url:'https://www.aena.es/es/infovuelos.html', social:'https://x.com/aena', desc:'Vuelos programados, retrasos y cambios operativos de aeropuertos AENA.'},
       {name:'Aeroport BCN-El Prat', type:'transporte', icon:'🛫', priority:'Alta', status:'web', url:'https://www.aena.es/es/josep-tarradellas-barcelona-el-prat.html', desc:'Página oficial del aeropuerto Josep Tarradellas Barcelona-El Prat.'},
+      {name:'Flightradar24', type:'transporte', icon:'✈️', priority:'Media', status:'iframe/API', url:'https://www.flightradar24.com/', live:'https://www.flightradar24.com/data/airports/bcn', desc:'Seguimiento visual de vuelos en vivo. En el centro se usa mapa embebible; datos avanzados requieren cuenta/API.'},
       {name:'Meteocat', type:'meteo', icon:'⛈️', priority:'Crítica', status:'API key/web', url:'https://www.meteo.cat/', live:'https://www.meteo.cat/observacions/xema', social:'https://x.com/meteocat', desc:'Avisos de Situación Meteorológica de Peligro, radar, XEMA y predicción.'},
       {name:'API Meteocat', type:'meteo', icon:'🔑', priority:'Media', status:'requiere clave', url:'https://apidocs.meteocat.gencat.cat/', desc:'API REST oficial con JSON para predicción, avisos y datos en tiempo real. Requiere API Key.'},
       {name:'Mapa Protecció Civil ICGC', type:'emergencia', icon:'🗺️', priority:'Media', status:'web', url:'https://pcivil.icgc.cat/', desc:'Mapa de riesgos y capas de protección civil de Catalunya.'}
@@ -207,14 +252,22 @@
 
     const X_SEARCH_TERMS = encodeURIComponent('(from:interiorcat OR from:mossos OR from:emergenciescat OR from:bomberscat OR from:semgencat) (emergència OR emergencia OR afectacions OR afectación OR tall OR confinament OR evacuació OR incendi OR accident OR alerta OR activat OR risc OR trànsit OR 112 OR 061)');
 
+    const FR24_VIEWS = {
+      cat: {label:'Catalunya', url:'https://www.flightradar24.com/simple_index.php?lat=41.75&lon=1.95&z=7'},
+      bcn: {label:'BCN-El Prat', url:'https://www.flightradar24.com/simple_index.php?lat=41.2974&lon=2.0833&z=10'},
+      gro: {label:'Girona', url:'https://www.flightradar24.com/simple_index.php?lat=41.9010&lon=2.7605&z=10'},
+      reu: {label:'Reus', url:'https://www.flightradar24.com/simple_index.php?lat=41.1474&lon=1.1672&z=10'}
+    };
+
     const byId = id => document.getElementById(id);
     const els = {
       clock: byId('clock'), globalStatus: byId('globalStatus'), refreshBtn: byId('refreshBtn'), fitBtn: byId('fitBtn'), ticker: byId('ticker'),
-      kpiTraffic: byId('kpiTraffic'), kpiRail: byId('kpiRail'), kpiCams: byId('kpiCams'), kpiPanels: byId('kpiPanels'), kpiX: byId('kpiX'), kpiSources: byId('kpiSources'), kpiMeteo: byId('kpiMeteo'), kpiUpdated: byId('kpiUpdated'),
+      kpiTraffic: byId('kpiTraffic'), kpiRail: byId('kpiRail'), kpiCams: byId('kpiCams'), kpiPanels: byId('kpiPanels'), kpiX: byId('kpiX'), kpiSources: byId('kpiSources'), kpiFlight: byId('kpiFlight'), kpiUpdated: byId('kpiUpdated'),
       searchBox: byId('searchBox'), trafficStatus: byId('trafficStatus'), toggleTraffic: byId('toggleTraffic'), toggleRail: byId('toggleRail'), toggleCams: byId('toggleCams'), togglePanels: byId('togglePanels'),
       citPanel: byId('citPanel'), citSummary: byId('citSummary'), resetCitFilters: byId('resetCitFilters'), citType: byId('citType'), citSort: byId('citSort'), citRoad: byId('citRoad'), citArea: byId('citArea'), citOnlyGeo: byId('citOnlyGeo'),
-      incidentList: byId('incidentList'), openCitBtn: byId('openCitBtn'), toggleCitPanelBtn: byId('toggleCitPanelBtn'), focusMeteoBtn: byId('focusMeteoBtn'), meteoCentral: byId('meteoCentral'), sourcesStatus: byId('sourcesStatus'), xLiveSearchBtn: byId('xLiveSearchBtn'), openXHubBtn: byId('openXHubBtn'), xChannelsMini: byId('xChannelsMini'), officialSources: byId('officialSources'),
-      sourceModal: byId('sourceModal'), modalTitle: byId('modalTitle'), modalSubtitle: byId('modalSubtitle'), modalBody: byId('modalBody')
+      incidentList: byId('incidentList'), mapStatus: byId('mapStatus'), fitTrafficBtn: byId('fitTrafficBtn'), openCitBtn: byId('openCitBtn'), toggleCitPanelBtn: byId('toggleCitPanelBtn'), sourcesStatus: byId('sourcesStatus'), xLiveSearchBtn: byId('xLiveSearchBtn'), openXHubBtn: byId('openXHubBtn'), xChannelsMini: byId('xChannelsMini'), officialSources: byId('officialSources'),
+      sourceModal: byId('sourceModal'), modalTitle: byId('modalTitle'), modalSubtitle: byId('modalSubtitle'), modalBody: byId('modalBody'),
+      flightRadarFrame: byId('flightRadarFrame'), flightRadarStatus: byId('flightRadarStatus'), refreshFlightBtn: byId('refreshFlightBtn')
     };
 
     const safe = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
@@ -223,7 +276,7 @@
     const num = value => Number(String(value ?? '').replace(',','.'));
 
     const state = {
-      traffic: [], rail: [], cams: [], panels: [], allIncidents: [], sourceFilter: 'all', refreshTimer: null,
+      traffic: [], rail: [], cams: [], panels: [], allIncidents: [], sourceFilter: 'all', refreshTimer: null, flightTimer: null, flightView: 'cat', mapFilter: 'all',
       cit: {type:'all', sort:'severity', road:'', area:'', onlyGeo:false},
       markers: {traffic:L.layerGroup(), cams:L.layerGroup(), panels:L.layerGroup()}
     };
@@ -233,10 +286,19 @@
     Object.values(state.markers).forEach(layer => layer.addTo(map));
     setTimeout(() => map.invalidateSize(), 300);
 
+    function makeIcon(label, bg, fg = '#fff'){
+      return L.divIcon({className:'',html:`<div style="background:${bg};color:${fg};border:2px solid white;border-radius:999px;width:26px;height:26px;display:grid;place-items:center;font-size:13px;font-weight:900;box-shadow:0 4px 14px rgba(0,0,0,.50)">${label}</div>`,iconSize:[26,26],iconAnchor:[13,13]});
+    }
     const icons = {
-      traffic: L.divIcon({className:'',html:'<div style="background:#ef4444;color:white;border:2px solid white;border-radius:999px;width:24px;height:24px;display:grid;place-items:center;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.45)">!</div>',iconSize:[24,24]}),
-      cam: L.divIcon({className:'',html:'<div style="background:#0284c7;color:white;border:2px solid white;border-radius:999px;width:23px;height:23px;display:grid;place-items:center;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.45)">📹</div>',iconSize:[23,23]}),
-      panel: L.divIcon({className:'',html:'<div style="background:#ca8a04;color:#111827;border:2px solid white;border-radius:999px;width:23px;height:23px;display:grid;place-items:center;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.45)">▣</div>',iconSize:[23,23]})
+      traffic: makeIcon('!', '#ef4444'),
+      retencions: makeIcon('R', '#dc2626'),
+      tall: makeIcon('!', '#991b1b'),
+      obres: makeIcon('🚧', '#f59e0b', '#111827'),
+      meteorologia: makeIcon('⛈', '#0891b2'),
+      mesures: makeIcon('M', '#7c3aed'),
+      info: makeIcon('i', '#2563eb'),
+      cam: makeIcon('📹', '#0284c7'),
+      panel: makeIcon('▣', '#ca8a04', '#111827')
     };
 
     function setClock(){ els.clock.textContent = fmtDateTime(new Date()) + ' BCN'; }
@@ -290,6 +352,37 @@
       const title = `${road}${km ? ` km ${km}` : ''}`;
       const desc = [inc.tipus || inc.causa || 'Incidencia', inc.nivell_afectacio || inc.nivell || '', inc.descripcio || inc.observacions || ''].filter(Boolean).join(' · ');
       return {source:'SCT/CIT Tráfico', type:'traffic', title, desc, road, km, area, tram, direction, lat:inc.latitud, lon:inc.longitud, searchText:[road,km,area,tram,direction,inc.tipus,inc.causa,inc.nivell_afectacio,inc.descripcio,inc.observacions,'sct cit carretera tráfico transit retencions obres meteorologia mesures'].join(' ')};
+    }
+
+
+    function trafficMatchesMapFilter(item){
+      if(state.mapFilter === 'all') return true;
+      return citTypeOf(item) === state.mapFilter;
+    }
+
+    function buildTrafficMarkers(){
+      state.markers.traffic.clearLayers();
+      const items = state.traffic.map(trafficItemFrom).filter(item => item.lat && item.lon && trafficMatchesMapFilter(item));
+      items.forEach(item => {
+        const lat = num(item.lat), lon = num(item.lon);
+        if(!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+        const kind = citTypeOf(item);
+        const popup = `<div style="min-width:240px"><b>${safe(item.title)}</b><br><span style="font-size:11px;color:#334155">${safe(item.area || item.tram || '')}</span><p style="font-size:12px;line-height:1.35">${safe(item.desc)}</p><b>Tipo CIT:</b> ${safe(kind)}</div>`;
+        L.marker([lat,lon],{icon:icons[kind] || icons.traffic}).bindPopup(popup).addTo(state.markers.traffic);
+      });
+      const label = state.mapFilter === 'all' ? 'todas las afectaciones' : state.mapFilter;
+      if(els.mapStatus) els.mapStatus.textContent = `Mapa SCT: ${items.length} marcador/es de ${label}. Cámaras: ${state.cams.length}. Paneles: ${state.panels.length}.`;
+    }
+
+    function fitVisibleMapLayers(){
+      const bounds = [];
+      [state.markers.traffic, state.markers.cams, state.markers.panels].forEach(layer => {
+        if(map.hasLayer(layer)) layer.eachLayer(marker => {
+          if(marker.getLatLng) bounds.push(marker.getLatLng());
+        });
+      });
+      if(bounds.length) map.fitBounds(L.latLngBounds(bounds), {padding:[35,35], maxZoom:13});
+      else map.fitBounds(CONFIG.catalunyaBounds);
     }
 
     function incidentCard(item){
@@ -347,15 +440,9 @@
 
     async function loadTraffic(){
       els.trafficStatus.innerHTML = '<span class="status-dot bg-amber-400 pulse"></span> SCT cargando';
-      state.markers.traffic.clearLayers();
       const data = await getJson(CONFIG.endpoints.traffic);
       state.traffic = (data || []).filter(item => item.latitud && item.longitud);
-      state.traffic.forEach(inc => {
-        const lat = num(inc.latitud), lon = num(inc.longitud);
-        const title = `${inc.vvia || 'Vía'} ${inc.ptini ? `km ${inc.ptini}` : ''}`;
-        const desc = `${inc.tipus || 'Incidencia'} · ${inc.descripcio || ''}`;
-        L.marker([lat,lon],{icon:icons.traffic}).bindPopup(`<b>${safe(title)}</b><br>${safe(desc)}`).addTo(state.markers.traffic);
-      });
+      buildTrafficMarkers();
       els.kpiTraffic.textContent = state.traffic.length;
       els.trafficStatus.innerHTML = '<span class="status-dot bg-green-400"></span> SCT OK';
     }
@@ -375,7 +462,8 @@
       state.cams.forEach(cam => {
         const lat = num(cam.latitud), lon = num(cam.longitud);
         const imgUrl = `https://cit.transit.gencat.cat/cit/AppJava/views/camara.xhtml?id=${encodeURIComponent(cam.id_camara || '')}`;
-        L.marker([lat,lon],{icon:icons.cam}).bindPopup(`<b>${safe(cam.nom_camara || 'Cámara SCT')}</b><br><a href="${imgUrl}" target="_blank" rel="noopener">Abrir cámara oficial</a>`).addTo(state.markers.cams);
+        const popup = `<div style="min-width:300px"><b>${safe(cam.nom_camara || 'Cámara SCT')}</b><br><iframe class="cam-popup-frame" src="${imgUrl}" title="Cámara SCT integrada" loading="lazy"></iframe><div style="font-size:10px;color:#475569;margin-top:4px">Si la cámara queda bloqueada, es por política del visor SCT, no del panel.</div></div>`;
+        L.marker([lat,lon],{icon:icons.cam}).bindPopup(popup,{maxWidth:390}).addTo(state.markers.cams);
       });
       els.kpiCams.textContent = state.cams.length;
     }
@@ -493,7 +581,82 @@
       state.cit.road = els.citRoad.value;
       state.cit.area = els.citArea.value;
       state.cit.onlyGeo = els.citOnlyGeo.checked;
+      state.mapFilter = state.cit.type === 'all' ? 'all' : state.cit.type;
+      buildTrafficMarkers();
       renderIncidents();
+      applyLayerVisibility();
+    }
+
+    function activateMapButton(action){
+      document.querySelectorAll('.map-control-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mapAction === action));
+    }
+
+    function handleMapAction(action){
+      if(action === 'cams'){
+        els.toggleCams.checked = true;
+        els.toggleTraffic.checked = false;
+        els.togglePanels.checked = false;
+        state.mapFilter = 'all';
+        activateMapButton(action);
+        applyLayerVisibility();
+        fitVisibleMapLayers();
+        if(els.mapStatus) els.mapStatus.textContent = `Cámaras SCT activadas: ${state.cams.length}. Haz clic en cada icono azul para ver la cámara integrada.`;
+        return;
+      }
+      if(action === 'panels'){
+        els.togglePanels.checked = true;
+        els.toggleTraffic.checked = false;
+        els.toggleCams.checked = false;
+        state.mapFilter = 'all';
+        activateMapButton(action);
+        applyLayerVisibility();
+        fitVisibleMapLayers();
+        if(els.mapStatus) els.mapStatus.textContent = `Paneles informativos SCT activados: ${state.panels.length}. Haz clic en cada icono amarillo para leer el mensaje.`;
+        return;
+      }
+      if(action === 'rail'){
+        els.toggleRail.checked = true;
+        els.searchBox.value = 'tren';
+        rebuildIncidentDataset();
+        activateMapButton(action);
+        if(els.mapStatus) els.mapStatus.textContent = 'Trenes/Rodalies no siempre incluyen coordenadas en datos abiertos; se muestran en la lista operativa izquierda.';
+        return;
+      }
+      if(action === 'meteo-widgets'){
+        document.getElementById('meteoCentral')?.scrollIntoView({behavior:'smooth', block:'start'});
+        activateMapButton(action);
+        if(els.mapStatus) els.mapStatus.textContent = 'Meteorología oficial: radar Meteocat principal y avisos/predicción debajo del mapa.';
+        return;
+      }
+
+      const filter = action === 'traffic-all' ? 'all' : action;
+      state.mapFilter = filter;
+      els.toggleTraffic.checked = true;
+      els.toggleCams.checked = false;
+      els.togglePanels.checked = false;
+      els.citType.value = filter === 'all' ? 'all' : filter;
+      state.cit.type = els.citType.value;
+      buildTrafficMarkers();
+      rebuildIncidentDataset();
+      activateMapButton(action);
+      applyLayerVisibility();
+      fitVisibleMapLayers();
+    }
+
+
+    function refreshFlightRadar(){
+      if(!els.flightRadarFrame || !FR24_VIEWS[state.flightView]) return;
+      const view = FR24_VIEWS[state.flightView];
+      const separator = view.url.includes('?') ? '&' : '?';
+      els.flightRadarFrame.src = `${view.url}${separator}_=${Date.now()}`;
+      if(els.flightRadarStatus) els.flightRadarStatus.innerHTML = `<span class="status-dot bg-blue-300"></span> ${safe(view.label)} · ${fmtTime(new Date())}`;
+    }
+
+    function setFlightView(viewKey){
+      if(!FR24_VIEWS[viewKey]) return;
+      state.flightView = viewKey;
+      document.querySelectorAll('.flight-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.fr24 === viewKey));
+      refreshFlightRadar();
     }
 
     async function refreshAll(){
@@ -512,9 +675,9 @@
 
     els.refreshBtn.onclick = refreshAll;
     els.fitBtn.onclick = () => map.fitBounds(CONFIG.catalunyaBounds);
+    if(els.fitTrafficBtn) els.fitTrafficBtn.onclick = fitVisibleMapLayers;
     els.openCitBtn.onclick = openCitIntegrated;
     els.toggleCitPanelBtn.onclick = () => els.citPanel.classList.toggle('hidden');
-    els.focusMeteoBtn.onclick = () => els.meteoCentral.scrollIntoView({behavior:'smooth', block:'nearest'});
     els.toggleTraffic.addEventListener('change', applyLayerVisibility);
     els.toggleCams.addEventListener('change', applyLayerVisibility);
     els.togglePanels.addEventListener('change', applyLayerVisibility);
@@ -525,12 +688,21 @@
     els.resetCitFilters.onclick = () => {
       els.citType.value = 'all'; els.citSort.value = 'severity'; els.citRoad.value = ''; els.citArea.value = ''; els.citOnlyGeo.checked = false;
       state.cit = {type:'all', sort:'severity', road:'', area:'', onlyGeo:false};
+      state.mapFilter = 'all';
+      activateMapButton('traffic-all');
+      buildTrafficMarkers();
       renderIncidents();
+      applyLayerVisibility();
     };
-    document.querySelectorAll('.sourceFilter').forEach(btn => btn.onclick = () => { state.sourceFilter = btn.dataset.filter; renderSources(); });
+    document.querySelectorAll('.sourceFilter').forEach(btn => btn.onclick = () => { state.sourceFilter = btn.dataset.filter; document.querySelectorAll('.sourceFilter').forEach(b => b.classList.toggle('active', b === btn)); renderSources(); });
+    document.querySelectorAll('.map-control-btn').forEach(btn => btn.onclick = () => handleMapAction(btn.dataset.mapAction));
+    document.querySelectorAll('.flight-btn').forEach(btn => btn.onclick = () => setFlightView(btn.dataset.fr24));
+    if(els.refreshFlightBtn) els.refreshFlightBtn.onclick = refreshFlightRadar;
 
     refreshAll();
+    refreshFlightRadar();
     state.refreshTimer = setInterval(refreshAll, CONFIG.refreshMs);
+    state.flightTimer = setInterval(refreshFlightRadar, 60000);
   </script>
 </body>
 </html>
