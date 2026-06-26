@@ -19,9 +19,63 @@
     .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#f8fafc;color:#0f172a}.leaflet-control-attribution{background:rgba(2,6,23,.75)!important;color:#cbd5e1!important}.leaflet-control-attribution a{color:#93c5fd!important}
     .source-tile{display:flex;gap:10px;padding:10px;border-radius:12px;border:1px solid #1f2937;background:#030712}.source-tile:hover{border-color:#475569;background:#0b1220}.x-tile{display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:12px;border:1px solid #1e293b;background:linear-gradient(180deg,#020617,#0f172a)}.x-tile:hover{border-color:#38bdf8}.kpi{background:linear-gradient(180deg,#0f172a,#020617);border:1px solid #1f2937;border-radius:16px;padding:12px}.ctrl{width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:7px 9px;font-size:12px;color:#e5e7eb;outline:none}.ctrl:focus{border-color:#38bdf8}.mini-table{width:100%;border-collapse:collapse}.mini-table th,.mini-table td{border-bottom:1px solid #1f2937;padding:7px 5px;text-align:left}.mini-table th{font-size:10px;text-transform:uppercase;color:#94a3b8}.mini-table td{font-size:11px;color:#d1d5db}.badge-red{background:#450a0a;color:#fecaca;border:1px solid #7f1d1d}.badge-amber{background:#451a03;color:#fde68a;border:1px solid #92400e}.badge-green{background:#052e16;color:#bbf7d0;border:1px solid #166534}.badge-blue{background:#082f49;color:#bae6fd;border:1px solid #075985}.badge-violet{background:#2e1065;color:#ddd6fe;border:1px solid #6d28d9}.badge-slate{background:#0f172a;color:#cbd5e1;border:1px solid #334155}
     .map-control-btn.active,.sourceFilter.active,.flight-btn.active{border-color:#38bdf8;background:#0c4a6e;color:#fff}.left-col,.right-col{max-height:calc(100vh - 190px);position:sticky;top:12px}.center-col{min-width:0}.meteo-scroll{max-height:none;overflow:visible}.meteo-card{background:#020617;border:1px solid #1f2937;border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center}.meteo-card.primary{border-color:#155e75;background:linear-gradient(180deg,#082f49,#020617)}.meteo-frame{max-width:100%;border-radius:12px;background:#0b1220}.meteo-radar-frame{width:100%;height:560px}.meteo-small-frame{width:100%;height:430px}.flight-card{background:#020617;border:1px solid #1f2937;border-radius:14px;overflow:hidden}.flight-frame{width:100%;height:520px;border:0;background:#0b1220}.cam-popup-frame{width:360px;height:270px;border:0;border-radius:8px;background:#111827}.map-legend{position:absolute;z-index:500;right:14px;bottom:14px;background:rgba(2,6,23,.88);border:1px solid #334155;border-radius:12px;padding:8px 10px;font-size:11px;color:#cbd5e1;backdrop-filter:blur(6px)}@media(max-width:1280px){#map{height:540px}.app-grid{grid-template-columns:1fr!important;height:auto!important}.right-col,.left-col{height:auto!important;max-height:none!important;position:static}.meteo-radar-frame{height:520px}.flight-frame{height:480px}}@media(max-width:720px){#map{height:460px;min-height:460px}.meteo-radar-frame,.meteo-small-frame,.flight-frame{height:420px}.cam-popup-frame{width:280px;height:220px}}
+
+
+    /* === LAYOUT FIX GITHUB PAGES v3: estructura propia sin depender solo de Tailwind === */
+    *{box-sizing:border-box}
+    body{margin:0;width:100%;min-width:320px}
+    header{position:relative;z-index:10}
+    header>div{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;max-width:1920px;margin:0 auto}
+    header .btn, header .chip{white-space:nowrap}
+    .kpi-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(145px,1fr))!important;gap:10px!important;padding:16px 16px 0!important;max-width:1920px;margin:0 auto;align-items:stretch}
+    .kpi-grid .kpi{min-width:0}
+    .kpi-grid .kpi-search{grid-column:span 2;min-width:min(100%,300px)}
+    .app-grid{display:grid!important;grid-template-columns:minmax(300px,360px) minmax(0,1fr) minmax(300px,380px)!important;gap:16px!important;align-items:start!important;width:100%;max-width:1920px;margin:0 auto;padding:16px!important}
+    .left-col,.center-col,.right-col{min-width:0;width:100%}
+    .left-col,.right-col{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:hidden;display:flex;flex-direction:column}
+    .center-col{display:flex;flex-direction:column;gap:0;overflow:visible!important}
+    #incidentList,#officialSources{min-height:260px;max-height:calc(100vh - 390px);overflow-y:auto!important}
+    #map{width:100%!important;height:620px!important;min-height:520px!important;display:block!important}
+    .map-actions-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(145px,1fr))!important;gap:8px!important;margin-top:8px!important}
+    .center-action-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))!important;gap:8px!important;margin-top:8px!important}
+    #meteoCentral,#flightRadarCentral{display:block!important;overflow:visible!important;flex:none!important;width:100%;margin-top:12px!important}
+    .meteo-scroll{display:block!important;overflow:visible!important;max-height:none!important;width:100%}
+    .meteo-card{width:100%;overflow:hidden}
+    .meteo-pair-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;align-items:start!important}
+    .meteo-frame{display:block;width:100%!important;max-width:100%!important;border:0!important}
+    .meteo-radar-frame{height:620px!important}
+    .meteo-small-frame{height:460px!important}
+    .flight-frame{width:100%!important;height:560px!important;display:block!important}
+    .source-tile,.x-tile,.card,.kpi{min-width:0;overflow-wrap:anywhere}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;line-height:1.2;min-height:34px;text-align:center;cursor:pointer}
+    .ctrl{max-width:100%}
+    dialog::backdrop{background:rgba(0,0,0,.65)}
+
+    @media(max-width:1500px){
+      .app-grid{grid-template-columns:minmax(280px,330px) minmax(0,1fr) minmax(280px,330px)!important}
+      #map{height:580px!important}.meteo-radar-frame{height:580px!important}.flight-frame{height:520px!important}
+    }
+    @media(max-width:1180px){
+      .app-grid{grid-template-columns:1fr!important;max-width:1100px}
+      .left-col,.right-col{position:static;max-height:none;overflow:visible}
+      #incidentList,#officialSources{max-height:none;overflow:visible!important}
+      #map{height:560px!important;min-height:500px!important}
+    }
+    @media(max-width:760px){
+      header>div{align-items:flex-start}
+      .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;padding:10px!important}
+      .kpi-grid .kpi-search{grid-column:1 / -1}
+      .app-grid{padding:10px!important;gap:10px!important}
+      #map{height:470px!important;min-height:430px!important}
+      .map-legend{position:static;margin-top:8px}
+      .meteo-pair-grid{grid-template-columns:1fr!important}
+      .meteo-radar-frame,.meteo-small-frame,.flight-frame{height:430px!important}
+      .cam-popup-frame{width:270px!important;height:210px!important}
+    }
   </style>
 </head>
 <body>
+  <!-- Layout corregido v3: grid estable 3 columnas, scroll vertical y widgets centrados -->
   <header class="bg-gray-950 border-b border-gray-800 px-4 py-3">
     <div class="flex flex-col 2xl:flex-row 2xl:items-center 2xl:justify-between gap-3">
       <div class="flex items-center gap-3">
@@ -44,7 +98,7 @@
     <div class="marquee text-xs text-amber-200 font-mono"><span id="ticker">Sistema cargando. En caso de emergencia real llama al 112 y consulta siempre los canales oficiales.</span></div>
   </section>
 
-  <section class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-2 p-4 pb-0">
+  <section class="kpi-grid">
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Tráfico</div><div id="kpiTraffic" class="text-2xl font-black text-red-400">--</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Trenes</div><div id="kpiRail" class="text-2xl font-black text-orange-400">--</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Cámaras</div><div id="kpiCams" class="text-2xl font-black text-sky-400">--</div></div>
@@ -52,11 +106,11 @@
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Canales X</div><div id="kpiX" class="text-2xl font-black text-sky-400">--</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Fuentes</div><div id="kpiSources" class="text-2xl font-black text-violet-400">--</div></div>
     <div class="kpi"><div class="text-[10px] text-gray-500 uppercase font-black">Última carga</div><div id="kpiUpdated" class="text-sm font-black text-green-400 mt-1">--</div></div>
-    <div class="kpi col-span-2"><div class="text-[10px] text-gray-500 uppercase font-black">Búsqueda global</div><input id="searchBox" class="w-full mt-1 bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-xs outline-none focus:border-sky-500" placeholder="Municipio, vía, línea, fuente..." /></div>
+    <div class="kpi kpi-search"><div class="text-[10px] text-gray-500 uppercase font-black">Búsqueda global</div><input id="searchBox" class="w-full mt-1 bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-xs outline-none focus:border-sky-500" placeholder="Municipio, vía, línea, fuente..." /></div>
   </section>
 
-  <main class="app-grid grid grid-cols-1 xl:grid-cols-12 gap-4 p-4 items-start">
-    <aside class="left-col xl:col-span-3 glass rounded-2xl p-3 flex flex-col min-h-0">
+  <main class="app-grid">
+    <aside class="left-col glass rounded-2xl p-3 flex flex-col min-h-0">
       <div class="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
         <h2 class="text-sm font-black uppercase tracking-widest text-red-400">⚠️ Incidencias operativas</h2>
         <span id="trafficStatus" class="chip">SCT</span>
@@ -99,7 +153,7 @@
       <div id="incidentList" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs"></div>
     </aside>
 
-    <section class="center-col xl:col-span-6 glass rounded-2xl p-2 flex flex-col min-h-0">
+    <section class="center-col glass rounded-2xl p-2 flex flex-col min-h-0">
       <div class="relative">
         <div id="map" class="rounded-xl overflow-hidden border border-gray-800"></div>
         <div class="map-legend">
@@ -108,7 +162,7 @@
           <div>⛈️ Meteorología: widgets Meteocat debajo</div>
         </div>
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-2 mt-2 text-xs">
+      <div class="map-actions-grid text-xs">
         <button class="btn map-control-btn active" data-map-action="traffic-all">🚦 Todo tráfico</button>
         <button class="btn map-control-btn" data-map-action="retencions">🔴 Retenciones</button>
         <button class="btn map-control-btn" data-map-action="tall">🚨 Accidentes/cortes</button>
@@ -121,7 +175,7 @@
         <button id="fitTrafficBtn" class="btn text-center">⌖ Ajustar mapa</button>
       </div>
       <div id="mapStatus" class="card p-2 mt-2 text-[11px] text-gray-300 font-mono">Mapa listo. Selecciona una capa para ver las afectaciones ubicadas.</div>
-      <div class="grid md:grid-cols-4 gap-2 mt-2 text-xs">
+      <div class="center-action-grid text-xs">
         <button id="openCitBtn" class="btn text-center">CIT Incidencias integrado</button>
         <button id="toggleCitPanelBtn" class="btn text-center">Filtros CIT/SCT</button>
         <button id="openXHubBtn" class="btn text-center">Canales X críticos</button>
@@ -140,7 +194,7 @@
             <h3 class="text-sm font-black text-cyan-100 mb-2 uppercase">Radar Meteocat · Última imagen</h3>
             <iframe class="meteo-frame meteo-radar-frame" src="https://static-m.meteo.cat/ginys/mapaRadar?language=ca&amp;color=2c3e50&amp;target=_blank" title="Última imatge de radar" frameborder="0" scrolling="no" loading="lazy"></iframe>
           </article>
-          <div class="grid lg:grid-cols-2 gap-3 items-start">
+          <div class="meteo-pair-grid">
             <article class="meteo-card">
               <h3 class="text-xs font-black text-cyan-200 mb-2 uppercase text-center">Predicción general de Catalunya</h3>
               <iframe class="meteo-frame meteo-small-frame" src="https://static-m.meteo.cat/ginys/mapaPrediccio?language=ca&amp;color=2c3e50&amp;target=_blank" title="Predicció general de Catalunya" frameborder="0" scrolling="no" loading="lazy"></iframe>
@@ -179,7 +233,7 @@
       </section>
     </section>
 
-    <aside class="right-col xl:col-span-3 glass rounded-2xl p-3 flex flex-col min-h-0">
+    <aside class="right-col glass rounded-2xl p-3 flex flex-col min-h-0">
       <div class="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
         <h2 class="text-sm font-black uppercase tracking-widest text-sky-400">📡 Fuentes oficiales</h2>
         <span id="sourcesStatus" class="chip">Monitor</span>
@@ -213,10 +267,11 @@
     'use strict';
 
     const CONFIG = {
-      refreshMs: 120000,
+      refreshMs: 60000,
       catalunyaBounds: [[40.45,0.15],[42.95,3.45]],
       endpoints: {
-        traffic: 'https://analisi.transparenciacatalunya.cat/resource/636n-5b5g.json?$limit=80',
+        trafficCit: 'https://cit.transit.gencat.cat/cit/rest/incidents',
+        trafficOpen: 'https://analisi.transparenciacatalunya.cat/resource/636n-5b5g.json?$limit=120',
         rail: 'https://analisi.transparenciacatalunya.cat/resource/92ee-9694.json?$limit=40',
         cams: 'https://analisi.transparenciacatalunya.cat/resource/9tbq-v22s.json?$limit=250',
         panels: 'https://analisi.transparenciacatalunya.cat/resource/6vvf-923f.json?$limit=160'
@@ -230,7 +285,7 @@
       {name:'Mossos d’Esquadra', type:'emergencia', icon:'👮', priority:'Alta', status:'web/xarxes', url:'https://mossos.gencat.cat/', social:'https://x.com/mossos', desc:'Seguridad ciudadana, avisos policiales, tráfico y prevención.'},
       {name:'Agents Rurals', type:'emergencia', icon:'🌲', priority:'Alta', status:'web/xarxes', url:'https://interior.gencat.cat/ca/arees_dactuacio/agents-rurals/', social:'https://x.com/agentsruralscat', desc:'Medio natural, prevención de incendios, Pla Alfa y restricciones en espacios forestales.'},
       {name:'Mapa Continu de Trànsit MCT', type:'transporte', icon:'🗺️', priority:'Crítica', status:'visor oficial', url:'https://mct.gencat.cat/', live:'https://transit.gencat.cat/ca/informacio-viaria/estat-transit/mapa-continu-mct/', social:'https://x.com/transit', desc:'Visor oficial del Servei Català de Trànsit: incidencias, densidad, cámaras, paneles, restricciones, meteorología, obras y XIMP.'},
-      {name:'Servei Català de Trànsit - dades obertes', type:'transporte', icon:'🚗', priority:'Crítica', status:'datos abiertos', url:'https://cit.transit.gencat.cat/', live:'https://analisi.transparenciacatalunya.cat/', social:'https://x.com/transit', desc:'Datos abiertos del SCT cargados directamente en el panel: incidencias viarias, cámaras y paneles informativos.'},
+      {name:'CIT/SCT Incidències viàries', type:'transporte', icon:'🚦', priority:'Crítica', status:'REST oficial + fallback', url:'https://cit.transit.gencat.cat/cit/AppJava/views/incidents.xhtml', live:'https://cit.transit.gencat.cat/cit/rest/incidents', social:'https://x.com/transit', desc:'Incidencias viarias oficiales del Concentrador d’Informació de Trànsit. El panel intenta leer primero el REST oficial /cit/rest/incidents y cae a datos abiertos si GitHub Pages queda bloqueado por CORS.'},
       {name:'Rodalies Catalunya', type:'transporte', icon:'🚆', priority:'Alta', status:'web/datos', url:'https://rodalies.gencat.cat/ca/alteracions_del_servei/', social:'https://x.com/rodalies', desc:'Estado del servicio, alteraciones, demoras y planes alternativos.'},
       {name:'Adif', type:'transporte', icon:'🛤️', priority:'Alta', status:'web', url:'https://www.adif.es/viajeros/estado-de-la-red', social:'https://x.com/Adif_es', desc:'Estado de la red ferroviaria e incidencias de infraestructura.'},
       {name:'Renfe', type:'transporte', icon:'🚄', priority:'Alta', status:'web/xarxes', url:'https://www.renfe.com/es/es/ayuda/estado-del-servicio', social:'https://x.com/Renfe', desc:'Estado del servicio ferroviario y comunicaciones de operador.'},
@@ -318,6 +373,85 @@
       }
     }
 
+
+    async function getJsonFromAny(urls){
+      let lastError;
+      for(const url of urls){
+        try{
+          const payload = await getJson(url);
+          return {payload, url};
+        }catch(error){
+          lastError = error;
+          console.warn('Fuente no disponible:', url, error);
+        }
+      }
+      throw lastError || new Error('No hay fuentes disponibles');
+    }
+
+    function findObjectArrays(value, out = []){
+      if(Array.isArray(value)){
+        if(value.some(item => item && typeof item === 'object')) out.push(value);
+        value.slice(0,12).forEach(item => findObjectArrays(item, out));
+      }else if(value && typeof value === 'object'){
+        Object.values(value).slice(0,32).forEach(child => findObjectArrays(child, out));
+      }
+      return out;
+    }
+
+    function pickTrafficArray(payload){
+      if(Array.isArray(payload)) return payload;
+      const directKeys = ['incidents','incidencies','afectacions','resultats','results','data','items','content','llista','list'];
+      for(const key of directKeys){
+        if(Array.isArray(payload?.[key])) return payload[key];
+      }
+      if(Array.isArray(payload?.features)){
+        return payload.features.map(feature => ({...(feature.properties || {}), geometry:feature.geometry}));
+      }
+      const candidates = findObjectArrays(payload).sort((a,b) => b.length - a.length);
+      return candidates[0] || [];
+    }
+
+    function firstField(obj, names){
+      for(const name of names){
+        if(obj && obj[name] !== undefined && obj[name] !== null && String(obj[name]).trim() !== '') return obj[name];
+      }
+      return '';
+    }
+
+    function coordField(obj, latNames, lonNames){
+      const lat = firstField(obj, latNames);
+      const lon = firstField(obj, lonNames);
+      if(lat && lon) return {lat, lon};
+      const coords = obj?.geometry?.coordinates || obj?.coordenades || obj?.coordinates;
+      if(Array.isArray(coords) && coords.length >= 2){
+        const a = num(coords[0]), b = num(coords[1]);
+        if(Math.abs(a) <= 5 && Math.abs(b) >= 35) return {lat:b, lon:a};
+        return {lat:a, lon:b};
+      }
+      return {lat:'', lon:''};
+    }
+
+    function normalizeTrafficIncident(raw, sourceUrl){
+      const coords = coordField(raw,
+        ['latitud','lat','latitude','y','coordenada_y','coordenadaY','coord_y','utm_y'],
+        ['longitud','lon','lng','longitude','x','coordenada_x','coordenadaX','coord_x','utm_x']
+      );
+      const road = firstField(raw, ['vvia','via','carretera','nom_via','nomVia','codi_via','codiVia','codigoVia','route']) || 'Vía';
+      const ptini = firstField(raw, ['ptini','pk_ini','pkInicial','punt_kilometric_inici','km_inici','quilometre_inici','puntInicial','kmInicial']);
+      const ptfi = firstField(raw, ['ptfi','pk_fi','pkFinal','punt_kilometric_fi','km_fi','quilometre_fi','puntFinal','kmFinal']);
+      const tipus = firstField(raw, ['tipus','tipo','tipus_afectacio','tipusAfectacio','tipoAfectacion','causa','nomTipus']);
+      const nivell = firstField(raw, ['nivell_afectacio','nivell','nivel','nivellAfectacio','nivelAfectacion','afectacio','afectación']);
+      const area = firstField(raw, ['comarca','demarcacio','demarcaci','provincia','municipi','municipio','poblacio','poblacion']);
+      const tram = firstField(raw, ['tram','descripcio_tram','descripcioTram','tramAfectat','municipiOrigen','origen','destinacio']);
+      const desc = firstField(raw, ['descripcio','descripción','descripcion','observacions','observaciones','observacions_ca','text','detall','detalle']);
+      const direction = firstField(raw, ['sentit','sentido','cap_a','capA','cap','direccio','direccion']);
+      const started = firstField(raw, ['data_inici','dataInici','fechaInicio','inici','inicio','data']);
+      return {
+        ...raw, vvia:road, via:road, ptini, ptfi, tipus, nivell_afectacio:nivell, comarca:area, tram, descripcio:desc, sentit:direction,
+        data_inici:started, latitud:coords.lat, longitud:coords.lon, _sourceUrl:sourceUrl
+      };
+    }
+
     function severity(text){
       const t = String(text || '').toLowerCase();
       if(/tall|interromp|accident|incendi|evacu|confin|emerg|greu|aturat|susp[eè]s|cancel/.test(t)) return ['Crítica','badge-red'];
@@ -346,12 +480,13 @@
     function trafficItemFrom(inc){
       const road = inc.vvia || inc.via || inc.carretera || 'Vía';
       const km = [inc.ptini, inc.ptfi].filter(Boolean).join('-');
-      const area = inc.comarca || inc.demarcacio || inc.demarcaci || inc.poblacio || '';
-      const tram = inc.tram || inc.descripcio_tram || inc.descripcio || '';
-      const direction = inc.sentit || inc.cap_a || inc.cap || '';
+      const area = inc.comarca || inc.demarcacio || inc.demarcaci || inc.poblacio || inc.municipi || '';
+      const tram = inc.tram || inc.descripcio_tram || inc.descripcioTram || inc.descripcio || '';
+      const direction = inc.sentit || inc.cap_a || inc.capA || inc.cap || '';
       const title = `${road}${km ? ` km ${km}` : ''}`;
       const desc = [inc.tipus || inc.causa || 'Incidencia', inc.nivell_afectacio || inc.nivell || '', inc.descripcio || inc.observacions || ''].filter(Boolean).join(' · ');
-      return {source:'SCT/CIT Tráfico', type:'traffic', title, desc, road, km, area, tram, direction, lat:inc.latitud, lon:inc.longitud, searchText:[road,km,area,tram,direction,inc.tipus,inc.causa,inc.nivell_afectacio,inc.descripcio,inc.observacions,'sct cit carretera tráfico transit retencions obres meteorologia mesures'].join(' ')};
+      const sourceName = String(inc._sourceUrl || '').includes('/cit/rest/incidents') ? 'CIT/SCT REST oficial' : 'SCT datos abiertos';
+      return {source:sourceName, type:'traffic', title, desc, road, km, area, tram, direction, lat:inc.latitud, lon:inc.longitud, searchText:[road,km,area,tram,direction,inc.tipus,inc.causa,inc.nivell_afectacio,inc.descripcio,inc.observacions,'sct cit carretera tráfico transit retencions obres meteorologia mesures'].join(' ')};
     }
 
 
@@ -439,12 +574,23 @@
     }
 
     async function loadTraffic(){
-      els.trafficStatus.innerHTML = '<span class="status-dot bg-amber-400 pulse"></span> SCT cargando';
-      const data = await getJson(CONFIG.endpoints.traffic);
-      state.traffic = (data || []).filter(item => item.latitud && item.longitud);
+      els.trafficStatus.innerHTML = '<span class="status-dot bg-amber-400 pulse"></span> CIT/SCT cargando';
+      const {payload, url} = await getJsonFromAny([CONFIG.endpoints.trafficCit, CONFIG.endpoints.trafficOpen]);
+      const rawItems = pickTrafficArray(payload);
+      let normalized = rawItems.map(item => normalizeTrafficIncident(item, url));
+
+      // Si el REST oficial devuelve datos sin coordenadas útiles, se completa con el dataset abierto para que el mapa sea operativo.
+      const geoCount = normalized.filter(item => item.latitud && item.longitud).length;
+      if(url.includes('/cit/rest/incidents') && geoCount === 0){
+        const fallback = await getJson(CONFIG.endpoints.trafficOpen);
+        normalized = pickTrafficArray(fallback).map(item => normalizeTrafficIncident(item, CONFIG.endpoints.trafficOpen));
+      }
+
+      state.traffic = normalized.filter(item => item.latitud && item.longitud);
       buildTrafficMarkers();
       els.kpiTraffic.textContent = state.traffic.length;
-      els.trafficStatus.innerHTML = '<span class="status-dot bg-green-400"></span> SCT OK';
+      const mode = url.includes('/cit/rest/incidents') ? 'CIT REST oficial' : 'SCT datos abiertos';
+      els.trafficStatus.innerHTML = `<span class="status-dot bg-green-400"></span> ${safe(mode)} · 60s`;
     }
 
     async function loadRail(){
@@ -557,14 +703,14 @@
       els.modalSubtitle.textContent = 'Afectaciones abiertas · filtros equivalentes dentro del centro de control';
       const byType = rows.reduce((acc,row) => { const key = citTypeOf(row); acc[key] = (acc[key] || 0) + 1; return acc; }, {});
       els.modalBody.innerHTML = `<div class="space-y-3">
-        <div class="card p-3 text-xs text-sky-100"><b>Integración interna:</b> este módulo replica en el centro de control la lista operativa de afectaciones abiertas del CIT/SCT usando el dataset oficial de incidencias viarias que ya carga el mapa. No abre una ventana externa ni depende de enlaces para consultar la información básica.</div>
+        <div class="card p-3 text-xs text-sky-100"><b>Integración interna:</b> este módulo integra la lista operativa de afectaciones abiertas del CIT/SCT intentando cargar primero el REST oficial /cit/rest/incidents detectado en incidents.xhtml. Si el navegador bloquea esa lectura desde GitHub Pages, usa automáticamente el dataset oficial abierto del SCT como respaldo. No abre una ventana externa ni depende de enlaces para consultar la información básica.</div>
         <div class="grid grid-cols-2 md:grid-cols-6 gap-2 text-center">
           ${['tall','retencions','obres','meteorologia','mesures','info'].map(key => `<div class="kpi"><div class="text-[10px] uppercase text-gray-500 font-black">${key}</div><div class="text-lg font-black">${byType[key] || 0}</div></div>`).join('')}
         </div>
         <div class="overflow-auto card p-2"><table class="mini-table"><thead><tr><th>Tipo</th><th>Vía</th><th>Km</th><th>Área/tramo</th><th>Detalle</th></tr></thead><tbody>
           ${rows.slice(0,120).map(row => `<tr><td>${safe(citTypeOf(row))}</td><td class="font-black text-red-200">${safe(row.road)}</td><td>${safe(row.km || '-')}</td><td>${safe(row.area || row.tram || '-')}</td><td>${safe(row.desc).slice(0,180)}</td></tr>`).join('') || '<tr><td colspan="5">No hay incidencias cargadas.</td></tr>'}
         </tbody></table></div>
-        <div class="card p-3 text-xs text-amber-100"><b>Nota técnica:</b> la página original incidents.xhtml del CIT es una aplicación web con formularios y carga dinámica. En un HTML estático de GitHub Pages no se puede copiar su aplicación interna completa si el servidor bloquea lectura cruzada o cambia sus scripts. Por eso aquí queda implementada la función útil: listado, filtros, ordenación, mapa y actualización automática con datos oficiales abiertos.</div>
+        <div class="card p-3 text-xs text-amber-100"><b>Nota técnica:</b> la página original incidents.xhtml del CIT es una aplicación web con formularios y carga dinámica. En un HTML estático de GitHub Pages no se puede copiar su aplicación interna completa si el servidor bloquea lectura cruzada o cambia sus scripts. Por eso aquí queda implementada la función útil: listado, filtros, ordenación, mapa y actualización automática cada minuto, con REST oficial del CIT cuando esté disponible y datos abiertos como respaldo.</div>
       </div>`;
       els.sourceModal.showModal();
     }
