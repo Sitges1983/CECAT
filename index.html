@@ -184,19 +184,29 @@
       <section id="mctCentral" class="mt-2 card p-3 flex-1 min-h-0 overflow-hidden">
         <div class="mct-toolbar border-b border-gray-800 pb-2 mb-3">
           <div>
-            <h2 class="text-sm font-black uppercase tracking-widest text-red-300">🗺️ Mapa Continu de Trànsit · MCT oficial SCT</h2>
-            <p class="text-[10px] text-gray-500 font-mono">Visor oficial integrado dentro del centro · autoactualización cada 60 segundos</p>
+            <h2 class="text-sm font-black uppercase tracking-widest text-red-300">🗺️ MCT operacional interno · SCT/CIT</h2>
+            <p class="text-[10px] text-gray-500 font-mono">Sustituye el iframe MCT bloqueado · datos SCT/CIT sobre el mapa superior · autoactualización cada 60 segundos</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <span id="mctStatus" class="chip"><span class="status-dot bg-red-400 pulse"></span> Inicializando MCT</span>
-            <button id="mctFullscreenBtn" class="btn">Pantalla completa</button>
+            <span id="mctStatus" class="chip"><span class="status-dot bg-red-400 pulse"></span> Inicializando módulo MCT</span>
+            <button id="mctFullscreenBtn" class="btn">Ver mapa superior</button>
           </div>
         </div>
-        <div class="mct-card">
-          <iframe id="mctFrame" class="mct-frame" title="Mapa Continu de Trànsit MCT integrado" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allow="fullscreen; geolocation"></iframe>
+        <div class="mct-card p-3">
+          <div class="grid md:grid-cols-4 gap-2 text-xs mb-3">
+            <button class="btn map-control-btn" data-map-action="traffic-all">🚦 Todo SCT/CIT</button>
+            <button class="btn map-control-btn" data-map-action="retencions">🔴 Retenciones</button>
+            <button class="btn map-control-btn" data-map-action="tall">🚨 Cortes/accidentes</button>
+            <button class="btn map-control-btn" data-map-action="obres">🚧 Obras</button>
+            <button class="btn map-control-btn" data-map-action="meteorologia">⛈️ Meteo carretera</button>
+            <button class="btn map-control-btn" data-map-action="cams">📹 Cámaras</button>
+            <button class="btn map-control-btn" data-map-action="panels">📟 Paneles</button>
+            <button id="mctFitInternalBtn" class="btn">⌖ Ajustar afectaciones</button>
+          </div>
+          <div id="mctInternalSummary" class="grid md:grid-cols-4 gap-2 text-xs"></div>
         </div>
         <div class="card p-3 mt-3 mct-fallback">
-          <b>Nota técnica:</b> el MCT se carga como visor oficial embebido dentro de esta misma página y se recarga automáticamente cada minuto. Si el servidor del SCT o el navegador bloquean la visualización en iframe, el bloque puede aparecer en blanco o con aviso de bloqueo; en ese caso seguirán funcionando las capas propias del mapa superior con datos abiertos SCT/CIT.
+          <b>Corrección aplicada:</b> se ha retirado el iframe directo de <b>mct.gencat.cat</b> porque en GitHub Pages puede romperse con el error <b>ParseJson - Array.prototype.indexOf called on null or undefined</b>. Este bloque usa el mapa propio de arriba con incidencias, cámaras y paneles SCT/CIT cargados cada minuto. El MCT oficial queda como fuente externa de verificación, pero ya no se carga automáticamente dentro del HTML para no romper la web.
         </div>
       </section>
 
@@ -229,8 +239,8 @@
       <section id="flightRadarCentral" class="mt-2 card p-3 flex-1 min-h-0 overflow-hidden">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-800 pb-2 mb-3">
           <div>
-            <h2 class="text-sm font-black uppercase tracking-widest text-blue-300">✈️ Tráfico aéreo en vivo · Flightradar24</h2>
-            <p class="text-[10px] text-gray-500 font-mono">Mapa integrado sobre Catalunya · autoactualización cada 60 segundos · útil para afectaciones aéreas y operativa aeroportuaria</p>
+            <h2 class="text-sm font-black uppercase tracking-widest text-blue-300">✈️ Operativa aérea · panel seguro</h2>
+            <p class="text-[10px] text-gray-500 font-mono">Sin iframe de Flightradar24 · evita “rechazó la conexión” · autoactualización visual cada 60 segundos</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <span id="flightRadarStatus" class="chip"><span class="status-dot bg-blue-300 pulse"></span> Inicializando</span>
@@ -243,11 +253,11 @@
           <button class="btn flight-btn" data-fr24="gro">Girona</button>
           <button class="btn flight-btn" data-fr24="reu">Reus</button>
         </div>
-        <div class="flight-card">
-          <iframe id="flightRadarFrame" class="flight-frame" title="Flightradar24 Catalunya integrado" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allow="fullscreen"></iframe>
+        <div class="flight-card p-3">
+          <div id="flightPanelContent" class="grid md:grid-cols-2 gap-3 text-xs"></div>
         </div>
         <div class="card p-3 mt-3 text-[11px] text-amber-100 leading-relaxed">
-          <b>Nota técnica:</b> este visor usa el modo de mapa embebible de Flightradar24 y se recarga automáticamente cada minuto desde la propia página. Si Flightradar24 cambia su política de iframe, exige sesión o bloquea la carga por navegador, el bloque puede mostrar una pantalla de bloqueo aunque el resto del centro seguirá funcionando. Para datos aeronáuticos API completos haría falta backend/API comercial.
+          <b>Corrección aplicada:</b> se ha retirado el iframe de Flightradar24 porque <b>www.flightradar24.com rechaza la conexión</b> cuando se intenta incrustar desde GitHub Pages. El bloque queda como panel operacional estable con actualización cada minuto y accesos de verificación manual. Para mapa aéreo en vivo embebido real haría falta una API/servicio que permita iframe o un backend autorizado.
         </div>
       </section>
     </section>
@@ -311,7 +321,7 @@
       {name:'Renfe', type:'transporte', icon:'🚄', priority:'Alta', status:'web/xarxes', url:'https://www.renfe.com/es/es/ayuda/estado-del-servicio', social:'https://x.com/Renfe', desc:'Estado del servicio ferroviario y comunicaciones de operador.'},
       {name:'AENA Infovuelos', type:'transporte', icon:'✈️', priority:'Alta', status:'web', url:'https://www.aena.es/es/infovuelos.html', social:'https://x.com/aena', desc:'Vuelos programados, retrasos y cambios operativos de aeropuertos AENA.'},
       {name:'Aeroport BCN-El Prat', type:'transporte', icon:'🛫', priority:'Alta', status:'web', url:'https://www.aena.es/es/josep-tarradellas-barcelona-el-prat.html', desc:'Página oficial del aeropuerto Josep Tarradellas Barcelona-El Prat.'},
-      {name:'Flightradar24', type:'transporte', icon:'✈️', priority:'Media', status:'iframe/API', url:'https://www.flightradar24.com/', live:'https://www.flightradar24.com/data/airports/bcn', desc:'Seguimiento visual de vuelos en vivo. En el centro se usa mapa embebible; datos avanzados requieren cuenta/API.'},
+      {name:'Flightradar24', type:'transporte', icon:'✈️', priority:'Media', status:'no embebible', url:'https://www.flightradar24.com/', live:'https://www.flightradar24.com/data/airports/bcn', desc:'Seguimiento visual de vuelos en vivo. No se incrusta en GitHub Pages porque rechaza iframe; se mantiene como fuente de verificación externa.'},
       {name:'Meteocat', type:'meteo', icon:'⛈️', priority:'Crítica', status:'API key/web', url:'https://www.meteo.cat/', live:'https://www.meteo.cat/observacions/xema', social:'https://x.com/meteocat', desc:'Avisos de Situación Meteorológica de Peligro, radar, XEMA y predicción.'},
       {name:'API Meteocat', type:'meteo', icon:'🔑', priority:'Media', status:'requiere clave', url:'https://apidocs.meteocat.gencat.cat/', desc:'API REST oficial con JSON para predicción, avisos y datos en tiempo real. Requiere API Key.'},
       {name:'Mapa Protecció Civil ICGC', type:'emergencia', icon:'🗺️', priority:'Media', status:'web', url:'https://pcivil.icgc.cat/', desc:'Mapa de riesgos y capas de protección civil de Catalunya.'}
@@ -340,9 +350,9 @@
       kpiTraffic: byId('kpiTraffic'), kpiRail: byId('kpiRail'), kpiCams: byId('kpiCams'), kpiPanels: byId('kpiPanels'), kpiX: byId('kpiX'), kpiSources: byId('kpiSources'), kpiFlight: byId('kpiFlight'), kpiUpdated: byId('kpiUpdated'),
       searchBox: byId('searchBox'), trafficStatus: byId('trafficStatus'), toggleTraffic: byId('toggleTraffic'), toggleRail: byId('toggleRail'), toggleCams: byId('toggleCams'), togglePanels: byId('togglePanels'),
       citPanel: byId('citPanel'), citSummary: byId('citSummary'), resetCitFilters: byId('resetCitFilters'), citType: byId('citType'), citSort: byId('citSort'), citRoad: byId('citRoad'), citArea: byId('citArea'), citOnlyGeo: byId('citOnlyGeo'),
-      incidentList: byId('incidentList'), mapStatus: byId('mapStatus'), fitTrafficBtn: byId('fitTrafficBtn'), openMctBtn: byId('openMctBtn'), refreshMctBtn: byId('refreshMctBtn'), mctFrame: byId('mctFrame'), mctStatus: byId('mctStatus'), mctFullscreenBtn: byId('mctFullscreenBtn'), sourcesStatus: byId('sourcesStatus'), xLiveSearchBtn: byId('xLiveSearchBtn'), openXHubBtn: byId('openXHubBtn'), xChannelsMini: byId('xChannelsMini'), officialSources: byId('officialSources'),
+      incidentList: byId('incidentList'), mapStatus: byId('mapStatus'), fitTrafficBtn: byId('fitTrafficBtn'), openMctBtn: byId('openMctBtn'), refreshMctBtn: byId('refreshMctBtn'), mctStatus: byId('mctStatus'), mctFullscreenBtn: byId('mctFullscreenBtn'), mctInternalSummary: byId('mctInternalSummary'), mctFitInternalBtn: byId('mctFitInternalBtn'), sourcesStatus: byId('sourcesStatus'), xLiveSearchBtn: byId('xLiveSearchBtn'), openXHubBtn: byId('openXHubBtn'), xChannelsMini: byId('xChannelsMini'), officialSources: byId('officialSources'),
       sourceModal: byId('sourceModal'), modalTitle: byId('modalTitle'), modalSubtitle: byId('modalSubtitle'), modalBody: byId('modalBody'),
-      flightRadarFrame: byId('flightRadarFrame'), flightRadarStatus: byId('flightRadarStatus'), refreshFlightBtn: byId('refreshFlightBtn')
+      flightRadarStatus: byId('flightRadarStatus'), refreshFlightBtn: byId('refreshFlightBtn'), flightPanelContent: byId('flightPanelContent')
     };
 
     const safe = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
@@ -712,8 +722,8 @@
       if(!source) return;
       els.modalTitle.textContent = `${source.icon} ${source.name}`;
       els.modalSubtitle.textContent = `${source.type.toUpperCase()} · prioridad ${source.priority} · ${source.status}`;
-      const mctInfo = source.name.includes('MCT') ? '<div class="card p-3 text-xs text-sky-200"><b>MCT oficial:</b> este visor del SCT concentra incidencias en tiempo real, densidad del tráfico, cámaras, paneles de mensaje variable, meteorología, restricciones, mercancías peligrosas y datos de zonas fronterizas. En esta versión HTML se integra además como iframe central con recarga automática cada minuto, siempre que el servidor/navegador permita su visualización embebida.</div>' : '';
-      els.modalBody.innerHTML = `<div class="space-y-3"><p>${safe(source.desc)}</p>${mctInfo}<div class="grid sm:grid-cols-3 gap-2"><a class="btn text-center" target="_blank" rel="noopener" href="${safe(source.url)}">Abrir web oficial</a>${source.live ? `<a class="btn text-center" target="_blank" rel="noopener" href="${safe(source.live)}">Abrir directo/noticias</a>` : ''}${source.social ? `<a class="btn text-center" target="_blank" rel="noopener" href="${safe(source.social)}">Abrir red social</a>` : ''}</div><div class="card p-3 text-xs text-amber-200"><b>Nota técnica:</b> desde un único HTML en GitHub Pages no se puede garantizar al 100% la visualización embebida del MCT completo ni leer X/Twitter, Facebook, AENA o algunas webs oficiales por CORS, iframes bloqueados, autenticación y políticas anti-scraping. Por eso el centro carga datos abiertos cuando existen y deja el visor oficial MCT y otras fuentes verificadas a un clic.</div></div>`;
+      const mctInfo = source.name.includes('MCT') ? '<div class="card p-3 text-xs text-sky-200"><b>MCT oficial:</b> este visor del SCT concentra incidencias en tiempo real, densidad del tráfico, cámaras, paneles de mensaje variable, meteorología, restricciones, mercancías peligrosas y datos de zonas fronterizas. En esta versión HTML NO se carga como iframe porque mct.gencat.cat genera errores dentro de GitHub Pages; se replica operativamente con el mapa propio, capas SCT/CIT, cámaras y paneles actualizados cada minuto.</div>' : '';
+      els.modalBody.innerHTML = `<div class="space-y-3"><p>${safe(source.desc)}</p>${mctInfo}<div class="grid sm:grid-cols-3 gap-2"><a class="btn text-center" target="_blank" rel="noopener" href="${safe(source.url)}">Abrir web oficial</a>${source.live ? `<a class="btn text-center" target="_blank" rel="noopener" href="${safe(source.live)}">Abrir directo/noticias</a>` : ''}${source.social ? `<a class="btn text-center" target="_blank" rel="noopener" href="${safe(source.social)}">Abrir red social</a>` : ''}</div><div class="card p-3 text-xs text-amber-200"><b>Nota técnica:</b> desde un único HTML en GitHub Pages no se puede garantizar la visualización embebida del MCT completo, Flightradar24 ni leer X/Twitter, Facebook, AENA o algunas webs oficiales por CORS, iframes bloqueados, autenticación y políticas anti-scraping. Por eso el centro carga datos abiertos cuando existen y deja el visor oficial MCT y otras fuentes verificadas a un clic.</div></div>`;
       els.sourceModal.showModal();
     }
 
@@ -811,25 +821,55 @@
 
 
     function refreshMctView(){
-      if(!els.mctFrame) return;
-      const separator = CONFIG.mctUrl.includes('?') ? '&' : '?';
-      els.mctFrame.src = `${CONFIG.mctUrl}${separator}_=${Date.now()}`;
-      if(els.mctStatus) els.mctStatus.innerHTML = `<span class="status-dot bg-red-400"></span> MCT · ${fmtTime(new Date())}`;
+      const withGeo = state.traffic.filter(item => item.hasGeo).length;
+      const ret = state.traffic.filter(item => matchesIncidentType(item, 'retencions')).length;
+      const cuts = state.traffic.filter(item => matchesIncidentType(item, 'tall')).length;
+      const works = state.traffic.filter(item => matchesIncidentType(item, 'obres')).length;
+      const meteo = state.traffic.filter(item => matchesIncidentType(item, 'meteorologia')).length;
+      if(els.mctInternalSummary){
+        els.mctInternalSummary.innerHTML = `
+          <div class="card p-3"><div class="text-gray-400">Afectaciones SCT/CIT</div><div class="text-2xl font-black text-red-300">${state.traffic.length}</div></div>
+          <div class="card p-3"><div class="text-gray-400">Con coordenadas</div><div class="text-2xl font-black text-sky-300">${withGeo}</div></div>
+          <div class="card p-3"><div class="text-gray-400">Retenciones / cortes</div><div class="text-2xl font-black text-amber-300">${ret + cuts}</div></div>
+          <div class="card p-3"><div class="text-gray-400">Obras / meteo</div><div class="text-2xl font-black text-cyan-300">${works + meteo}</div></div>
+        `;
+      }
+      if(els.mctStatus) els.mctStatus.innerHTML = `<span class="status-dot bg-green-400"></span> MCT interno · ${fmtTime(new Date())}`;
     }
 
     function scrollToMct(){
       document.getElementById('mctCentral')?.scrollIntoView({behavior:'smooth', block:'start'});
       refreshMctView();
-      if(els.mapStatus) els.mapStatus.textContent = 'MCT oficial integrado debajo del mapa. Se recarga automáticamente cada minuto.';
+      if(els.mapStatus) els.mapStatus.textContent = 'MCT interno activo: usa las capas reales SCT/CIT del mapa superior y evita el error ParseJson del iframe oficial.';
     }
 
 
     function refreshFlightRadar(){
-      if(!els.flightRadarFrame || !FR24_VIEWS[state.flightView]) return;
+      if(!FR24_VIEWS[state.flightView]) return;
       const view = FR24_VIEWS[state.flightView];
-      const separator = view.url.includes('?') ? '&' : '?';
-      els.flightRadarFrame.src = `${view.url}${separator}_=${Date.now()}`;
-      if(els.flightRadarStatus) els.flightRadarStatus.innerHTML = `<span class="status-dot bg-blue-300"></span> ${safe(view.label)} · ${fmtTime(new Date())}`;
+      const links = {
+        cat: ['https://www.flightradar24.com/', 'https://www.aena.es/es/infovuelos.html'],
+        bcn: ['https://www.flightradar24.com/data/airports/bcn', 'https://www.aena.es/es/josep-tarradellas-barcelona-el-prat.html'],
+        gro: ['https://www.flightradar24.com/data/airports/gro', 'https://www.aena.es/es/girona-costa-brava.html'],
+        reu: ['https://www.flightradar24.com/data/airports/reu', 'https://www.aena.es/es/reus.html']
+      }[state.flightView] || ['https://www.flightradar24.com/', 'https://www.aena.es/es/infovuelos.html'];
+      if(els.flightPanelContent){
+        els.flightPanelContent.innerHTML = `
+          <div class="card p-3">
+            <div class="text-gray-400 uppercase font-black mb-1">Vista seleccionada</div>
+            <div class="text-xl font-black text-blue-200 mb-2">${safe(view.label)}</div>
+            <p class="text-gray-400 leading-relaxed">El iframe de Flightradar24 queda desactivado para evitar el error de conexión rechazada. Este panel se mantiene vivo y se actualiza cada 60 segundos.</p>
+          </div>
+          <div class="card p-3">
+            <div class="text-gray-400 uppercase font-black mb-2">Verificación operacional</div>
+            <div class="grid gap-2">
+              <a class="btn text-center" target="_blank" rel="noopener" href="${links[0]}">Abrir Flightradar24 oficial</a>
+              <a class="btn text-center" target="_blank" rel="noopener" href="${links[1]}">Abrir AENA oficial</a>
+            </div>
+          </div>
+        `;
+      }
+      if(els.flightRadarStatus) els.flightRadarStatus.innerHTML = `<span class="status-dot bg-green-400"></span> ${safe(view.label)} · ${fmtTime(new Date())}`;
     }
 
     function setFlightView(viewKey){
@@ -858,7 +898,8 @@
     if(els.fitTrafficBtn) els.fitTrafficBtn.onclick = fitVisibleMapLayers;
     if(els.openMctBtn) els.openMctBtn.onclick = scrollToMct;
     if(els.refreshMctBtn) els.refreshMctBtn.onclick = refreshMctView;
-    if(els.mctFullscreenBtn) els.mctFullscreenBtn.onclick = () => { if(els.mctFrame?.requestFullscreen) els.mctFrame.requestFullscreen(); };
+    if(els.mctFullscreenBtn) els.mctFullscreenBtn.onclick = () => document.getElementById('map')?.scrollIntoView({behavior:'smooth', block:'center'});
+    if(els.mctFitInternalBtn) els.mctFitInternalBtn.onclick = fitVisibleMapLayers;
     // El panel lateral CIT/SCT se mantiene como filtros de datos abiertos; la antigua pestaña modal CIT queda reemplazada por el visor MCT integrado.
     els.toggleTraffic.addEventListener('change', applyLayerVisibility);
     els.toggleCams.addEventListener('change', applyLayerVisibility);
